@@ -1,0 +1,20 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.ChronosMobile" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges</item>
+        <item name="android:textColor"> #000000 </item>
+    </style>
+
+    <style name="SpinnerScrollBarCustom" parent="Widget.AppCompat.ListView.DropDown">
+        <item name="android:scrollbarThumbVertical">@color/red_btn_bg_color</item>
+    </style>
+
+    <style name="CustomNumberPicker" parent="@android:style/Widget.Material.Light.NumberPicker">
+        <item name="android:fontFamily"> @font/archivo_black </item>
+        <item name="android:textSize"> 25dp </item>
+    </style>
+</resources>

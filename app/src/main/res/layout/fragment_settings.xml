@@ -1,0 +1,883 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:paddingTop="20dp"
+    android:id="@+id/fragment_settings"
+    android:paddingBottom="20dp"
+    tools:context=".ui.settings.SettingsFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutBack"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:elevation="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/nvSettings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/buttonBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:background="@color/float_transparent"
+            android:src="@drawable/ic_arrow_back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="@font/inter_extra_bold"
+            android:text="AJUSTES"
+            android:textSize="18dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/buttonBack"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nvSettings"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutBack">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clConfiguracionInicial"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:background="@color/float_transparent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <View
+                    android:id="@+id/dTopConfiguracionInicial"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imageConfiguracionInicial"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_sync"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textConfiguracionInicial"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Configuración inicial"
+                    app:layout_constraintStart_toEndOf="@+id/imageConfiguracionInicial"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopConfiguracionInicial" />
+
+                <TextView
+                    android:id="@+id/subtitleConfiguracionInicial"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Realizar sincronización inicial de información."
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/buttonConfiguracionInicial"
+                    app:layout_constraintStart_toStartOf="@+id/textConfiguracionInicial"
+                    app:layout_constraintTop_toBottomOf="@+id/textConfiguracionInicial" />
+
+                <Button
+                    android:id="@+id/buttonConfiguracionInicial"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="15dp"
+                    android:background="@drawable/ic_arrow_right_wl"
+                    android:tooltipText="Guardar"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomConfiguracionInicial"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopConfiguracionInicial" />
+
+                <View
+                    android:id="@+id/dBottomConfiguracionInicial"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clDetallesDispositivo"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clConfiguracionInicial">
+
+                <View
+                    android:id="@+id/dTopDetallesDispositivo"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imageDetallesDispositivo"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_device_info"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textDetallesDispositivo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Nombre de dispositivo"
+                    app:layout_constraintStart_toEndOf="@+id/imageDetallesDispositivo"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopDetallesDispositivo" />
+
+                <EditText
+                    android:id="@+id/inputDetallesDispositivo"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="5dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:hint="Nombre de dispositivo"
+                    android:inputType="text"
+                    android:textSize="16dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/buttonDetallesDispositivo"
+                    app:layout_constraintStart_toStartOf="@+id/textDetallesDispositivo"
+                    app:layout_constraintTop_toBottomOf="@+id/textDetallesDispositivo" />
+
+                <!--                <TextView-->
+                <!--                    android:id="@+id/subtitleDetallesDispositivo"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:layout_marginStart="5dp"-->
+                <!--                    android:layout_marginTop="2dp"-->
+                <!--                    android:text="Toca aqui para configurar."-->
+                <!--                    app:layout_constraintStart_toStartOf="@+id/textDetallesDispositivo"-->
+                <!--                    app:layout_constraintTop_toBottomOf="@+id/textDetallesDispositivo" />-->
+
+                <Button
+                    android:id="@+id/buttonDetallesDispositivo"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="15dp"
+                    android:background="@drawable/ic_save"
+                    android:tooltipText="Guardar"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomDetallesDispositivo"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/inputDetallesDispositivo"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopDetallesDispositivo" />
+
+                <View
+                    android:id="@+id/dBottomDetallesDispositivo"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clPuntoControl"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clDetallesDispositivo">
+
+                <View
+                    android:id="@+id/dTop"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imageView3"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_devices"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Punto de control"
+                    app:layout_constraintStart_toEndOf="@+id/imageView3"
+                    app:layout_constraintTop_toBottomOf="@+id/dTop" />
+
+                <Spinner
+                    android:id="@+id/spinnerPuntoControl"
+                    android:layout_width="0dp"
+                    android:layout_height="300dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="5dp"
+                    android:foregroundGravity="center_vertical"
+                    android:gravity="center_vertical"
+                    android:isScrollContainer="true"
+                    android:spinnerMode="dialog"
+                    android:theme="@style/SpinnerScrollBarCustom"
+                    android:verticalScrollbarPosition="right"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/textView3"
+                    app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+                <!--                <TextView-->
+                <!--                    android:id="@+id/textView7"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:layout_marginStart="5dp"-->
+                <!--                    android:layout_marginTop="2dp"-->
+                <!--                    android:text="Toca aqui para configurar."-->
+                <!--                    app:layout_constraintStart_toStartOf="@+id/textView3"-->
+                <!--                    app:layout_constraintTop_toBottomOf="@+id/textView3" />-->
+
+                <View
+                    android:id="@+id/dBottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clVoz"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clPuntoControl">
+
+                <View
+                    android:id="@+id/dTopVoz"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imagenVoz"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_voice"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textoVoz"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Voz de Información"
+                    app:layout_constraintStart_toEndOf="@+id/imagenVoz"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopVoz" />
+
+                <TextView
+                    android:id="@+id/textoSubtituloVoz"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="23dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Reproducir voz al marcar."
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomVoz"
+                    app:layout_constraintEnd_toStartOf="@+id/switchVoz"
+                    app:layout_constraintStart_toStartOf="@+id/textoVoz"
+                    app:layout_constraintTop_toBottomOf="@+id/textoVoz" />
+
+                <Switch
+                    android:id="@+id/switchVoz"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="15dp"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomVoz"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textoSubtituloVoz"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopVoz" />
+
+                <View
+                    android:id="@+id/dBottomVoz"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clTeclado"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clVoz">
+
+                <View
+                    android:id="@+id/dTopTeclado"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imagenTeclado"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_keyboard"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textoTeclado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Teclado activado"
+                    app:layout_constraintStart_toEndOf="@+id/imagenTeclado"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopTeclado" />
+
+                <TextView
+                    android:id="@+id/textoSubtituloTeclado"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="23dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Activar teclado virtual."
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomTeclado"
+                    app:layout_constraintEnd_toStartOf="@+id/switchTeclado"
+                    app:layout_constraintStart_toStartOf="@+id/textoTeclado"
+                    app:layout_constraintTop_toBottomOf="@+id/textoTeclado" />
+
+                <View
+                    android:id="@+id/dBottomTeclado"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <Switch
+                    android:id="@+id/switchTeclado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomTeclado"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/dTopTeclado" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clLongitudDNI"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clTeclado">
+
+                <View
+                    android:id="@+id/dTopLongitudDNI"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imagenLongitudDNI"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_number"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textoLongitudDNI"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Longitud de DNI"
+                    app:layout_constraintStart_toEndOf="@+id/imagenLongitudDNI"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopLongitudDNI" />
+
+                <TextView
+                    android:id="@+id/textoSubtituloLongitudDNI"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="23dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Longitud permitida en el campo DNI."
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomLongitudDNI"
+                    app:layout_constraintStart_toStartOf="@+id/textoLongitudDNI"
+                    app:layout_constraintTop_toBottomOf="@+id/textoLongitudDNI" />
+
+                <View
+                    android:id="@+id/dBottomLongitudDNI"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <EditText
+                    android:id="@+id/inputLongitudDNI"
+                    android:layout_width="35dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:inputType="number"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomLongitudDNI"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopLongitudDNI" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clPermitirPrefijo"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clLongitudDNI">
+
+                <View
+                    android:id="@+id/dTopPermitirPrefijo"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imagenPermitirPrefijo"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_sj_wol"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textoPermitirPrefijo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Permitir Prefijo"
+                    app:layout_constraintStart_toEndOf="@+id/imagenPermitirPrefijo"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopPermitirPrefijo" />
+
+                <TextView
+                    android:id="@+id/textoSubtituloPermitirPrefijo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="23dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Permitir prefijo 'SJ' en campo DNI."
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomPermitirPrefijo"
+                    app:layout_constraintStart_toStartOf="@+id/textoPermitirPrefijo"
+                    app:layout_constraintTop_toBottomOf="@+id/textoPermitirPrefijo" />
+
+                <View
+                    android:id="@+id/dBottomPermitirPrefijo"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <Switch
+                    android:id="@+id/switchPermitirPrefijo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomPermitirPrefijo"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopPermitirPrefijo" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clNoPermitirPrefijo"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:layout_editor_absoluteY="560dp">
+
+                <View
+                    android:id="@+id/dTopNoPermitirPrefijo"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imagenNoPermitirPrefijo"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_sj_wl"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textoNoPermitirPrefijo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Permitir sin Prefijo"
+                    app:layout_constraintStart_toEndOf="@+id/imagenNoPermitirPrefijo"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopNoPermitirPrefijo" />
+
+                <TextView
+                    android:id="@+id/textoSubtituloNoPermitirPrefijo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="23dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Permitir DNI sin prefijo en campo DNI."
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomNoPermitirPrefijo"
+                    app:layout_constraintStart_toStartOf="@+id/textoNoPermitirPrefijo"
+                    app:layout_constraintTop_toBottomOf="@+id/textoNoPermitirPrefijo" />
+
+                <View
+                    android:id="@+id/dBottomNoPermitirPrefijo"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <Switch
+                    android:id="@+id/switchPermitirSinPrefijo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomNoPermitirPrefijo"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopNoPermitirPrefijo" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clPermitirInactivo"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clNoPermitirPrefijo">
+
+                <View
+                    android:id="@+id/dTopPermitirInactivo"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imagenPermitirInactivo"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_user_inactive"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textoPermitirInactivo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Permitir Inactivos"
+                    app:layout_constraintStart_toEndOf="@+id/imagenPermitirInactivo"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopPermitirInactivo" />
+
+                <TextView
+                    android:id="@+id/textoSubtituloPermitirInactivo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="23dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Permite trabajadores inactivos."
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomPermitirInactivo"
+                    app:layout_constraintStart_toStartOf="@+id/textoPermitirInactivo"
+                    app:layout_constraintTop_toBottomOf="@+id/textoPermitirInactivo" />
+
+                <View
+                    android:id="@+id/dBottomPermitirInactivo"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <Switch
+                    android:id="@+id/switchInactivos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomPermitirInactivo"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopPermitirInactivo" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clPermitirObservado"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clPermitirInactivo">
+
+                <View
+                    android:id="@+id/dTopPermitirObservado"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imagenPermitirObservado"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_user_observed"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textoPermitirObservado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Permitir Observados"
+                    app:layout_constraintStart_toEndOf="@+id/imagenPermitirObservado"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopPermitirObservado" />
+
+                <TextView
+                    android:id="@+id/textoSubtituloPermitirObservado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="23dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Permitir trabajadores observados."
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomPermitirObservado"
+                    app:layout_constraintStart_toStartOf="@+id/textoPermitirObservado"
+                    app:layout_constraintTop_toBottomOf="@+id/textoPermitirObservado" />
+
+                <View
+                    android:id="@+id/dBottomPermitirObservado"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <Switch
+                    android:id="@+id/switchObservados"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomPermitirObservado"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopPermitirObservado" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clModoPacking"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clPermitirObservado">
+
+                <View
+                    android:id="@+id/dTopModoPacking"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imagenModoPacking"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_packing"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textoModoPacking"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Modo Packing"
+                    app:layout_constraintStart_toEndOf="@+id/imagenModoPacking"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopModoPacking" />
+
+                <TextView
+                    android:id="@+id/textoSubtituloModoPacking"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="23dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Modo para área de Packing."
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomModoPacking"
+                    app:layout_constraintStart_toStartOf="@+id/textoModoPacking"
+                    app:layout_constraintTop_toBottomOf="@+id/textoModoPacking" />
+
+                <View
+                    android:id="@+id/dBottomModoPacking"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <Switch
+                    android:id="@+id/switchModoPacking"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomModoPacking"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopModoPacking" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SELECCIONA LA BASE DE DATOS A USAR"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <RadioGroup
+        android:id="@+id/rgDB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView2">
+
+        <RadioButton
+            android:id="@+id/rbProduccion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Producción" />
+
+        <RadioButton
+            android:id="@+id/rbPruebas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pruebas" />
+    </RadioGroup>
+</androidx.constraintlayout.widget.ConstraintLayout>

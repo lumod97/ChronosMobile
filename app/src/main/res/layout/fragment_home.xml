@@ -1,0 +1,702 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:background="@color/white"
+        android:fillViewport="true"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        tools:context=".ui.home.HomeFragment"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp">
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutDateDetailsCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingTop="5dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp"
+            android:background="@drawable/card_background"
+            app:cardCornerRadius="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/textClock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="10:17:06"
+                    android:textColor="#000000"
+                    android:textSize="20dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="Enero 03"
+                android:textColor="#000000"
+                android:textSize="20dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/imageConnection"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/imageConnection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_no_wifi" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/layoutDateDetailsCard"
+        tools:layout_editor_absoluteX="5dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/lyPrincipal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layoutDateDetailsCard">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutUserDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="#ffffff"
+                app:layout_constraintBottom_toTopOf="@+id/layoutMarkingDetailsCard"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutPhotoCard"
+                    android:layout_width="120dp"
+                    android:layout_height="150dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/card_background"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/imageView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/user_icon" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutUserDataCard"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="10dp"
+                    android:foregroundGravity="center_vertical|fill_vertical|clip_vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:background="@drawable/card_background"
+                    app:layout_constraintBottom_toBottomOf="@+id/layoutPhotoCard"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/layoutPhotoCard"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/textView4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="NOMBRES"
+                        android:textColor="#000000"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toTopOf="@+id/textNombres"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/textNombres"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text=""
+                        android:textColor="#000000"
+                        android:textSize="18dp"
+                        app:layout_constraintBottom_toTopOf="@+id/textView6"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="@+id/textView4"
+                        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+                        <TextView
+                            android:id="@+id/textView6"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="APELLIDOS"
+                            android:textColor="#000000"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toTopOf="@+id/textApellidos"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/textNombres" />
+
+                        <TextView
+                            android:id="@+id/textApellidos"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text=""
+                            android:textSize="18dp"
+                            android:textColor="#000000"
+                            app:layout_constraintBottom_toTopOf="@+id/tvError"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@+id/textView4"
+                            app:layout_constraintTop_toBottomOf="@+id/textView6" />
+
+                        <TextView
+                            android:id="@+id/tvError"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:lines="2"
+                            android:padding="5dp"
+                            android:text="ANUNCIOS VISIBLES"
+                            android:textColor="#58B949"
+                            android:textSize="18dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@+id/textView4"
+                            app:layout_constraintTop_toBottomOf="@+id/textApellidos" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutFechaDesde"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/card_background"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutPhotoCard">
+
+                    <EditText
+                        android:id="@+id/inputDNI"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:focusableInTouchMode="false"
+                        android:focusable="false"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:hint="DNI"
+                        android:inputType="number"
+                        android:maxLength="10"
+                        android:textColor="#454545"
+                        android:textColorHighlight="#707070"
+                        android:textColorLink="#707070"
+                        android:textSize="25dp" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutTipoMarcacionCard"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/card_background"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutFechaDesde">
+
+                    <EditText
+                        android:id="@+id/inputTipoMarcacion"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:hint="TIPO DE MARCACION"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:clickable="true"
+                        android:textColor="#454545"
+                        android:textSize="25dp" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutMarkingDetailsCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:paddingBottom="10dp"
+                android:background="@drawable/card_background"
+                app:layout_constraintBottom_toTopOf="@+id/layoutAddons"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutUserDetails">
+
+                    <!-- NUMBER 1 -->
+                    <Button
+                        android:id="@+id/button_1"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="15dp"
+                        android:background="@drawable/button_keyboard"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:padding="5dp"
+                        android:text="1"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:textColor="#606060"
+                        android:textSize="25dp"
+                        app:layout_constraintBottom_toTopOf="@+id/button_4"
+                        app:layout_constraintEnd_toStartOf="@+id/button_2"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <!-- NUMBER 2 -->
+                    <Button
+                        android:id="@+id/button_2"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:background="@drawable/button_keyboard"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:padding="0dp"
+                        android:text="2"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:textColor="#606060"
+                        android:textSize="25dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/button_1"
+                        app:layout_constraintEnd_toStartOf="@+id/button_3"
+                        app:layout_constraintStart_toEndOf="@+id/button_1"
+                        app:layout_constraintTop_toTopOf="@+id/button_1" />
+
+                    <!--                NUMBER 3 -->
+                    <Button
+                        android:id="@+id/button_3"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginRight="20dp"
+                        android:background="@drawable/button_keyboard"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:padding="0dp"
+                        android:text="3"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:textColor="#606060"
+                        android:textSize="25dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/button_2"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/button_2"
+                        app:layout_constraintTop_toTopOf="@+id/button_2" />
+
+                    <!--                NUMBER 4 -->
+                    <Button
+                        android:id="@+id/button_4"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="15dp"
+                        android:background="@drawable/button_keyboard"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:padding="0dp"
+                        android:text="4"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:textColor="#606060"
+                        android:textSize="25dp"
+                        app:layout_constraintBottom_toTopOf="@+id/button_7"
+                        app:layout_constraintEnd_toStartOf="@+id/button_5"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/button_1" />
+
+                    <!-- NUMBER 5 -->
+                    <Button
+                        android:id="@+id/button_5"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:background="@drawable/button_keyboard"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:padding="0dp"
+                        android:text="5"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:textColor="#606060"
+                        android:textSize="25dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/button_4"
+                        app:layout_constraintEnd_toStartOf="@+id/button_6"
+                        app:layout_constraintStart_toEndOf="@+id/button_4"
+                        app:layout_constraintTop_toTopOf="@+id/button_4" />
+
+                    <!-- NUMBER 6 -->
+                    <Button
+                        android:id="@+id/button_6"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginRight="20dp"
+                        android:background="@drawable/button_keyboard"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:padding="0dp"
+                        android:text="6"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:textColor="#606060"
+                        android:textSize="25dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/button_5"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/button_5"
+                        app:layout_constraintTop_toTopOf="@+id/button_5" />
+
+                    <!-- NUMBER 7 -->
+                    <Button
+                        android:id="@+id/button_7"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="15dp"
+                        android:background="@drawable/button_keyboard"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:padding="0dp"
+                        android:text="7"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:textColor="#606060"
+                        android:textSize="25dp"
+                        app:layout_constraintBottom_toTopOf="@+id/button_check"
+                        app:layout_constraintEnd_toStartOf="@+id/button_8"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/button_4" />
+
+                    <!-- NUMBER 8 -->
+                    <Button
+                        android:id="@+id/button_8"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:background="@drawable/button_keyboard"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:padding="0dp"
+                        android:text="8"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:textColor="#606060"
+                        android:textSize="25dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/button_7"
+                        app:layout_constraintEnd_toStartOf="@+id/button_9"
+                        app:layout_constraintStart_toEndOf="@+id/button_7"
+                        app:layout_constraintTop_toTopOf="@+id/button_7" />
+
+                    <!-- NUMBER 9 -->
+                    <Button
+                        android:id="@+id/button_9"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginRight="20dp"
+                        android:background="@drawable/button_keyboard"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:padding="0dp"
+                        android:text="9"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:textColor="#606060"
+                        android:textSize="25dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/button_8"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/button_8"
+                        app:layout_constraintTop_toTopOf="@+id/button_8" />
+
+                    <!-- CHECK -->
+                    <ImageButton
+                        android:id="@+id/button_check"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="15dp"
+                        android:background="@drawable/button_keyboard"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/success"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/button_0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/button_7" />
+
+                    <!-- NUMBER 0 -->
+                    <Button
+                        android:id="@+id/button_0"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:background="@drawable/button_keyboard"
+                        android:fontFamily="@font/inter_extra_bold"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:padding="0dp"
+                        android:text="0"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:textColor="#606060"
+                        android:textSize="25dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/button_check"
+                        app:layout_constraintEnd_toStartOf="@+id/button_x"
+                        app:layout_constraintStart_toEndOf="@+id/button_check"
+                        app:layout_constraintTop_toTopOf="@+id/button_check" />
+
+                    <!-- X -->
+                    <ImageButton
+                        android:id="@+id/button_x"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginBottom="15dp"
+                        android:background="@drawable/button_keyboard"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/cancel"
+                        app:layout_constraintBottom_toBottomOf="@+id/button_0"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/button_0"
+                        app:layout_constraintTop_toTopOf="@+id/button_0" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutAddons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:paddingLeft="15dp"
+                android:background="@drawable/card_background"
+                app:layout_constraintBottom_toTopOf="@+id/layoutSyncDetailsCard"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutMarkingDetailsCard">
+
+                <CheckBox
+                    android:id="@+id/checkBoxCena"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="CENA"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:textSize="18dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+                <Button
+                    android:id="@+id/btnProcesarMarcas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="ABRIR MENÚ"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutSyncDetailsCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="10dp"
+                android:paddingLeft="5dp"
+                android:paddingTop="5dp"
+                android:paddingRight="5dp"
+                android:paddingBottom="10dp"
+                android:background="@drawable/card_background"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutAddons">
+
+
+                <TextView
+                    android:id="@+id/textView19"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PUNTO DE CONTROL"
+                    android:textColor="#000000"
+                    android:textSize="15dp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/textPuntoControl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SPINNER DE PUNTOS DE CONTROL"
+                        android:textColor="#000000"
+                        android:textSize="15dp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textView19" />
+
+                    <TextView
+                        android:id="@+id/textView21"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ID DISPOSITIVO"
+                        android:textColor="#000000"
+                        android:textSize="15dp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textPuntoControl" />
+
+                    <TextView
+                        android:id="@+id/textIdDispositivo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="43"
+                        android:textColor="#000000"
+                        android:textSize="15dp"
+                        app:layout_constraintStart_toEndOf="@+id/textView21"
+                        app:layout_constraintTop_toTopOf="@+id/textView21" />
+
+                    <TextView
+                        android:id="@+id/textView23"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:text="MARCAS PENDIENTES"
+                        android:textColor="#000000"
+                        android:textSize="15dp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/tvMarcasSinProcesar"
+                        app:layout_constraintTop_toTopOf="@+id/tvMarcasSinProcesar" />
+
+                    <TextView
+                        android:id="@+id/tvMarcasSinProcesar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="200"
+                        android:textColor="#000000"
+                        android:textSize="15dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/textIdDispositivo" />
+
+                    <TextView
+                        android:id="@+id/textView25"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ÚLTIMO ENVIO"
+                        android:textColor="#000000"
+                        android:textSize="15dp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textView21" />
+
+                    <TextView
+                        android:id="@+id/textlastTransfer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2023-12-19 08:50:17"
+                        android:textColor="#000000"
+                        android:textSize="15dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/textView25" />
+
+                    <TextView
+                        android:id="@+id/textView27"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ÚLTIMA DESCARGA"
+                        android:textColor="#000000"
+                        android:textSize="15dp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textView25" />
+
+                    <TextView
+                        android:id="@+id/textLastDownload"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2023-12-19 08:50:17"
+                        android:textColor="#000000"
+                        android:textSize="15dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/textView27" />
+                <ProgressBar
+                    android:id="@+id/progressSync"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="50dp"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="@+id/textView27"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/textView27" />
+
+                <ImageView
+                    android:id="@+id/imageSync"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toTopOf="@+id/tvMarcasSinProcesar"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
