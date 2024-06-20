@@ -23,4 +23,11 @@
         android:label="@string/menu_reporte"
         tools:layout="@layout/fragment_report" />
 
+    <fragment
+        android:id="@+id/nav_scanner"
+        android:name="com.easj.chromosmobile.ui.scanner.ScannerFragment"
+        android:label="Scanner"
+        tools:layout="@layout/fragment_scanner"
+        />
+
 </navigation>

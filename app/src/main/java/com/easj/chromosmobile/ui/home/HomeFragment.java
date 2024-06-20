@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,12 +43,14 @@ import com.easj.chromosmobile.Interfaces.DAO.LogsDAO;
 import com.easj.chromosmobile.Interfaces.DAO.MarcasDAO;
 import com.easj.chromosmobile.Interfaces.DAO.PersonasDAO;
 import com.easj.chromosmobile.Interfaces.DAO.PuertasDAO;
+import com.easj.chromosmobile.Logica.CryptorSJ;
 import com.easj.chromosmobile.Logica.Swal;
 import com.easj.chromosmobile.MainActivity;
 import com.easj.chromosmobile.R;
 import com.easj.chromosmobile.SQLProcess.SQLConnection;
 import com.easj.chromosmobile.SQLProcess.SQLLogs;
 import com.easj.chromosmobile.databinding.FragmentHomeBinding;
+import com.easj.chromosmobile.ui.scanner.ScannerViewModel;
 import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONArray;
@@ -83,6 +86,9 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
     private SharedPreferences.Editor editor;
     private PuertasDAO puertasDAO;
 
+    private ScannerViewModel scannerViewModel;
+
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         HomeViewModel homeViewModel =
@@ -90,6 +96,25 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        scannerViewModel = new ViewModelProvider(requireActivity()).get(ScannerViewModel.class);
+
+        scannerViewModel.getScannedCode().observe(getViewLifecycleOwner(), code -> {
+            // Maneja el código escaneado aquí
+            if (code != null) {
+                // Hacer algo con el código escaneado
+                try {
+                    String dni = CryptorSJ.desencriptarCadena(code);
+                    evaluarMarca(dni);
+                    Toast.makeText(requireContext(), "Código escaneado: " + dni, Toast.LENGTH_LONG).show();
+                    scannerViewModel.setScannedCode(null);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        });
+
 
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(root.getWindowToken(), 0);
@@ -196,70 +221,14 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 
 //        INTENTAR MARCACIÓN
         binding.buttonCheck.setOnClickListener(view -> {
-            int idPuntoControl = sharedPreferences.getInt("ID_PUNTO_CONTROL_SELECTED", 0);
-            if(binding.inputDNI.getText().toString().length() == 0){
-                Swal.warning(ctx, "Alerta!", "Debe digitar un DNI");
-            }else if(binding.inputTipoMarcacion.getText().toString().length() == 0){
-                Swal.warning(ctx, "Alerta!", "Debes seleccionar un tipo de marcación antes de realizar una marcación.");
-            }else if (idPuntoControl == 0) {
-                Swal.warning(ctx, "Advertencia!","NO SE PUEDEN REALIZAR MARCAS POR QUE NO SE HA CONFIGURADO EL PUNTO DE CONTROL, COMUNIQUESE CON EL ÁREA DE SISTEMAS");
-            }else {
-                String dniMarcado = binding.inputDNI.getText().toString();
-                    //RETIRAMOS EL SJ DE LA CADENA DE TEXTO A ANALIZAR
-//                        OBTENEMOS EL REGISTRO DE LA PERSONA
-                    String dniBusqueda = dniMarcado;
-//                    if(dniBusqueda.substring(0,2).equals("SJ")){
-//                        dniBusqueda = dniBusqueda.substring(2);
-//                    }
-                    List<Personas> personasEncontradas = personasDAO.buscarPersona(dniBusqueda);
-//                        VALIDAMOS PERMISOS DE LA MARCA A REALIZAR
-                    switch (validarPermisoMarca(dniMarcado,personasEncontradas)){
-                        case 0:
-                            Swal.error(ctx, "No permitido", "No está permitido este tipo de marcación");
-                            binding.inputDNI.setText("");
-                            break;
-                        case 1:
-                            binding.tvError.setText("ACCESO PERMITIDO");
-                            binding.tvError.setTextColor(getResources().getColor(R.color.success));
-                            registrarMarca(dniMarcado, personasEncontradas);
-                            break;
-                        case 2:
-                            binding.textNombres.setText(personasEncontradas.get(0).getNombres());
-                            binding.textApellidos.setText(personasEncontradas.get(0).getPaterno() + " "+ personasEncontradas.get(0).getMaterno());
-                            binding.inputDNI.setText("");
-                            binding.tvError.setText("ACCESO PERMITIDO CON OBSERVACIÓN: "+personasEncontradas.get(0).getObservacion());
-                            binding.tvError.setTextColor(getResources().getColor(R.color.warning));
-                            registrarMarca(dniMarcado, personasEncontradas);
-                            break;
-                        case 3:
-                            String nombre = personasEncontradas.size() > 0 ? personasEncontradas.get(0).getNombres() : "DESCONOCIDO";
-                            String apellido = personasEncontradas.size() > 0 ? personasEncontradas.get(0).getPaterno() + " "+ personasEncontradas.get(0).getMaterno() : "DESCONOCIDO";
-                            String observacion = personasEncontradas.size() > 0 ? personasEncontradas.get(0).getObservacion() : "PERSONAL NO ENCONTRADO, MARCA REALIZADA";
-                            binding.textNombres.setText(nombre);
-                            binding.textApellidos.setText(apellido);
-                            binding.inputDNI.setText("");
-                            binding.tvError.setText(observacion);
-                            binding.tvError.setTextColor(getResources().getColor(R.color.warning));
-                            registrarMarca(dniMarcado, personasEncontradas);
-                            break;
-                        case 4:
-                            Swal.error(ctx, "Oops!","DEBE INGRESAR UN DNI");
-                            break;
-                        case 5:
-                            Swal.error(ctx, "Oops!","FALTAN CARACTERES");
-                            break;
-                        case 6:
-                            Swal.error(ctx, "No permitido", "No está permitida la marcación con prefijo");
-                        default:
-                            Swal.error(ctx, "Alerta!", "Ha ocurrido un error desconocido al procesar la marca.");
-                            break;
-                    }
-//
-                    obtenerMarcasSinProcesar();
-            }
-            tipoMarcacion = "T";
+            evaluarMarca(binding.inputDNI.getText().toString());
         });
 
+        binding.btnProcesarMarcas.setOnLongClickListener(view -> {
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
+            navController.navigate(R.id.nav_scanner);
+            return false;
+        });
 //        ABRIR MENÚ
         binding.btnProcesarMarcas.setOnClickListener(view -> {
 
@@ -369,6 +338,73 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
         binding.textPuntoControl.setText(puntoControl.equals("0") ? "NO CONFIGURADO" : puntoControl);
     }
 
+    private void evaluarMarca(String dni){
+        int idPuntoControl = sharedPreferences.getInt("ID_PUNTO_CONTROL_SELECTED", 0);
+        if(dni.length() == 0){
+            Swal.warning(ctx, "Alerta!", "Debe digitar un DNI");
+        }else if(binding.inputTipoMarcacion.getText().toString().length() == 0){
+            Swal.warning(ctx, "Alerta!", "Debes seleccionar un tipo de marcación antes de realizar una marcación.");
+        }else if (idPuntoControl == 0) {
+            Swal.warning(ctx, "Advertencia!","NO SE PUEDEN REALIZAR MARCAS POR QUE NO SE HA CONFIGURADO EL PUNTO DE CONTROL, COMUNIQUESE CON EL ÁREA DE SISTEMAS");
+        }else {
+            String dniMarcado = dni;
+            //RETIRAMOS EL SJ DE LA CADENA DE TEXTO A ANALIZAR
+//                        OBTENEMOS EL REGISTRO DE LA PERSONA
+            String dniBusqueda = dniMarcado;
+//                    if(dniBusqueda.substring(0,2).equals("SJ")){
+//                        dniBusqueda = dniBusqueda.substring(2);
+//                    }
+            List<Personas> personasEncontradas = personasDAO.buscarPersona(dniBusqueda);
+//                        VALIDAMOS PERMISOS DE LA MARCA A REALIZAR
+            switch (validarPermisoMarca(dniMarcado,personasEncontradas)) {
+                case 0:
+                    Swal.error(ctx, "No permitido", "No está permitido este tipo de marcación");
+                    binding.inputDNI.setText("");
+                    dni = "";
+                    break;
+                case 1:
+                    binding.tvError.setText("ACCESO PERMITIDO");
+                    binding.tvError.setTextColor(getResources().getColor(R.color.success));
+                    registrarMarca(dniMarcado, personasEncontradas);
+                    break;
+                case 2:
+                    binding.textNombres.setText(personasEncontradas.get(0).getNombres());
+                    binding.textApellidos.setText(personasEncontradas.get(0).getPaterno() + " " + personasEncontradas.get(0).getMaterno());
+                    binding.inputDNI.setText("");
+                    dni = "";
+                    binding.tvError.setText("ACCESO PERMITIDO CON OBSERVACIÓN: " + personasEncontradas.get(0).getObservacion());
+                    binding.tvError.setTextColor(getResources().getColor(R.color.warning));
+                    registrarMarca(dniMarcado, personasEncontradas);
+                    break;
+                case 3:
+                    String nombre = personasEncontradas.size() > 0 ? personasEncontradas.get(0).getNombres() : "DESCONOCIDO";
+                    String apellido = personasEncontradas.size() > 0 ? personasEncontradas.get(0).getPaterno() + " " + personasEncontradas.get(0).getMaterno() : "DESCONOCIDO";
+                    String observacion = personasEncontradas.size() > 0 ? personasEncontradas.get(0).getObservacion() : "PERSONAL NO ENCONTRADO, MARCA REALIZADA";
+                    binding.textNombres.setText(nombre);
+                    binding.textApellidos.setText(apellido);
+                    binding.inputDNI.setText("");
+                    dni = "";
+                    binding.tvError.setText(observacion);
+                    binding.tvError.setTextColor(getResources().getColor(R.color.warning));
+                    registrarMarca(dniMarcado, personasEncontradas);
+                    break;
+                case 4:
+                    Swal.error(ctx, "Oops!","DEBE INGRESAR UN DNI");
+                    break;
+                case 5:
+                    Swal.error(ctx, "Oops!","FALTAN CARACTERES");
+                    break;
+                case 6:
+                    Swal.error(ctx, "No permitido", "No está permitida la marcación con prefijo");
+                default:
+                    Swal.error(ctx, "Alerta!", "Ha ocurrido un error desconocido al procesar la marca.");
+                    break;
+            }
+//
+            obtenerMarcasSinProcesar();
+        }
+        tipoMarcacion = "T";
+    }
     private void registrarMarca(String dniMarcado, List<Personas> personasEncontradas) {
 
         String dniBuscar = dniMarcado.substring(0,2).equals("SJ") ? dniMarcado.substring(2) : dniMarcado;

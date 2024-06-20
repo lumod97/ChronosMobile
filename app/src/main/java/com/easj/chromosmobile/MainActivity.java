@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
 
-
         navController.addOnDestinationChangedListener((navController1, navDestination, bundle) -> {
             if (!ChronosMobile.isPassPassed() && navDestination.getLabel().toString().equals("Configuraciones")) {
                 navController1.popBackStack();
@@ -67,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
                     });
             }
         });
-
 
         // Excluir el destino nav_configuracion del AppBarConfiguration
         mAppBarConfiguration = new AppBarConfiguration.Builder(mAppBarConfiguration.getTopLevelDestinations())

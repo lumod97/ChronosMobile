@@ -334,6 +334,7 @@
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="23dp"
                     android:fontFamily="@font/inter_medium"
+                    android:maxLines="2"
                     android:text="Reproducir voz al marcar."
                     app:layout_constraintBottom_toTopOf="@+id/dBottomVoz"
                     app:layout_constraintEnd_toStartOf="@+id/switchVoz"
@@ -469,7 +470,7 @@
 
                 <TextView
                     android:id="@+id/textoSubtituloLongitudDNI"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginTop="2dp"
@@ -477,6 +478,7 @@
                     android:fontFamily="@font/inter_medium"
                     android:text="Longitud permitida en el campo DNI."
                     app:layout_constraintBottom_toTopOf="@+id/dBottomLongitudDNI"
+                    app:layout_constraintEnd_toStartOf="@+id/inputLongitudDNI"
                     app:layout_constraintStart_toStartOf="@+id/textoLongitudDNI"
                     app:layout_constraintTop_toBottomOf="@+id/textoLongitudDNI" />
 
@@ -540,7 +542,7 @@
 
                 <TextView
                     android:id="@+id/textoSubtituloPermitirPrefijo"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginTop="2dp"
@@ -548,6 +550,7 @@
                     android:fontFamily="@font/inter_medium"
                     android:text="Permitir prefijo 'SJ' en campo DNI."
                     app:layout_constraintBottom_toTopOf="@+id/dBottomPermitirPrefijo"
+                    app:layout_constraintEnd_toStartOf="@+id/switchPermitirPrefijo"
                     app:layout_constraintStart_toStartOf="@+id/textoPermitirPrefijo"
                     app:layout_constraintTop_toBottomOf="@+id/textoPermitirPrefijo" />
 
@@ -577,7 +580,7 @@
                 android:layout_height="80dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteY="560dp">
+                app:layout_constraintTop_toBottomOf="@+id/clPermitirPrefijo">
 
                 <View
                     android:id="@+id/dTopNoPermitirPrefijo"
@@ -610,7 +613,7 @@
 
                 <TextView
                     android:id="@+id/textoSubtituloNoPermitirPrefijo"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginTop="2dp"
@@ -618,6 +621,7 @@
                     android:fontFamily="@font/inter_medium"
                     android:text="Permitir DNI sin prefijo en campo DNI."
                     app:layout_constraintBottom_toTopOf="@+id/dBottomNoPermitirPrefijo"
+                    app:layout_constraintEnd_toStartOf="@+id/switchPermitirSinPrefijo"
                     app:layout_constraintStart_toStartOf="@+id/textoNoPermitirPrefijo"
                     app:layout_constraintTop_toBottomOf="@+id/textoNoPermitirPrefijo" />
 
@@ -679,7 +683,7 @@
 
                 <TextView
                     android:id="@+id/textoSubtituloPermitirInactivo"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginTop="2dp"
@@ -687,6 +691,7 @@
                     android:fontFamily="@font/inter_medium"
                     android:text="Permite trabajadores inactivos."
                     app:layout_constraintBottom_toTopOf="@+id/dBottomPermitirInactivo"
+                    app:layout_constraintEnd_toStartOf="@+id/switchInactivos"
                     app:layout_constraintStart_toStartOf="@+id/textoPermitirInactivo"
                     app:layout_constraintTop_toBottomOf="@+id/textoPermitirInactivo" />
 
@@ -711,7 +716,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clPermitirObservado"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="80dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -748,7 +753,7 @@
 
                 <TextView
                     android:id="@+id/textoSubtituloPermitirObservado"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginTop="2dp"
@@ -756,6 +761,7 @@
                     android:fontFamily="@font/inter_medium"
                     android:text="Permitir trabajadores observados."
                     app:layout_constraintBottom_toTopOf="@+id/dBottomPermitirObservado"
+                    app:layout_constraintEnd_toStartOf="@+id/switchObservados"
                     app:layout_constraintStart_toStartOf="@+id/textoPermitirObservado"
                     app:layout_constraintTop_toBottomOf="@+id/textoPermitirObservado" />
 
@@ -817,7 +823,7 @@
 
                 <TextView
                     android:id="@+id/textoSubtituloModoPacking"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginTop="2dp"
@@ -825,6 +831,7 @@
                     android:fontFamily="@font/inter_medium"
                     android:text="Modo para área de Packing."
                     app:layout_constraintBottom_toTopOf="@+id/dBottomModoPacking"
+                    app:layout_constraintEnd_toStartOf="@+id/switchModoPacking"
                     app:layout_constraintStart_toStartOf="@+id/textoModoPacking"
                     app:layout_constraintTop_toBottomOf="@+id/textoModoPacking" />
 
