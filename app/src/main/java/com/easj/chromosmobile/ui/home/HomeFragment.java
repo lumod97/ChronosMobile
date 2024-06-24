@@ -104,9 +104,10 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
             if (code != null) {
                 // Hacer algo con el código escaneado
                 try {
-                    String dni = CryptorSJ.desencriptarCadena(code);
-                    evaluarMarca(dni);
-                    Toast.makeText(requireContext(), "Código escaneado: " + dni, Toast.LENGTH_LONG).show();
+//                    String dni = CryptorSJ.desencriptarCadena(code);
+//                    Toast.makeText(ctx, dni, Toast.LENGTH_SHORT).show();
+                    evaluarMarca(code);
+//                    Toast.makeText(requireContext(), "Código escaneado: " + dni, Toast.LENGTH_LONG).show();
                     scannerViewModel.setScannedCode(null);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -127,7 +128,6 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
                 // Aquí puedes manejar la respuesta del ping
                 if (msg.what == 1) {
                     boolean isReachable = msg.getData().getBoolean("isReachable");
-
                 }
             }
         };
@@ -152,6 +152,7 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
                                 if(binding.inputDNI.getText().toString().length() >= 8){
                                     tipoMarcacion = "L";
                                     binding.buttonCheck.callOnClick();
+                                    binding.inputDNI.setText("");
                                 }
                             }
                         }
@@ -350,10 +351,21 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
             String dniMarcado = dni;
             //RETIRAMOS EL SJ DE LA CADENA DE TEXTO A ANALIZAR
 //                        OBTENEMOS EL REGISTRO DE LA PERSONA
+            boolean permitirEncriptado = sharedPreferences.getBoolean("PERMITIR_ENCRIPTADO", false);
+            if(!!permitirEncriptado){
+                if(dniMarcado.length() == 10){
+                    try {
+                        dniMarcado = CryptorSJ.desencriptarCadena(dniMarcado);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
             String dniBusqueda = dniMarcado;
 //                    if(dniBusqueda.substring(0,2).equals("SJ")){
 //                        dniBusqueda = dniBusqueda.substring(2);
 //                    }
+
             List<Personas> personasEncontradas = personasDAO.buscarPersona(dniBusqueda);
 //                        VALIDAMOS PERMISOS DE LA MARCA A REALIZAR
             switch (validarPermisoMarca(dniMarcado,personasEncontradas)) {

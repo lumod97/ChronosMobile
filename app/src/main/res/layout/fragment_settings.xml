@@ -503,13 +503,86 @@
                     app:layout_constraintTop_toBottomOf="@+id/dTopLongitudDNI" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+<!--            INICIO IMPLEMENTACIÓN ENCRIPTADO CONFIGURACIÓN-->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clPermitirEncriptado"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clLongitudDNI">
+
+                <View
+                    android:id="@+id/dTopPermitirEncriptado"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imagenPermitirEncriptado"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_encrypted"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textoPermitirEncriptado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Permitir Encriptado"
+                    app:layout_constraintStart_toEndOf="@+id/imagenPermitirEncriptado"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopPermitirEncriptado" />
+
+                <TextView
+                    android:id="@+id/textoSubtituloPermitirEncriptado"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="23dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Permitir encriptado en campo DNI."
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomPermitirEncriptado"
+                    app:layout_constraintEnd_toStartOf="@+id/switchPermitirEncriptado"
+                    app:layout_constraintStart_toStartOf="@+id/textoPermitirEncriptado"
+                    app:layout_constraintTop_toBottomOf="@+id/textoPermitirEncriptado" />
+
+                <View
+                    android:id="@+id/dBottomPermitirEncriptado"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <Switch
+                    android:id="@+id/switchPermitirEncriptado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomPermitirEncriptado"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopPermitirEncriptado" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+<!--            FIN IMPLEMENTACIÓN ENCRIPTADO CONFIGURACIÓN-->
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clPermitirPrefijo"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/clLongitudDNI">
+                app:layout_constraintTop_toBottomOf="@+id/clPermitirEncriptado">
 
                 <View
                     android:id="@+id/dTopPermitirPrefijo"

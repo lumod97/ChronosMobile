@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
@@ -52,9 +53,14 @@ public class ScannerFragment extends Fragment {
         scannerViewModel = new ViewModelProvider(requireActivity()).get(ScannerViewModel.class);
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
 
-        startCamera(); // Iniciar la cámara
-
         return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        cameraExecutor = Executors.newSingleThreadExecutor();
+        startCamera(); // Iniciar la cámara aquí
     }
 
     private void startCamera() {
@@ -124,11 +130,5 @@ public class ScannerFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         cameraExecutor.shutdown();
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        cameraExecutor = Executors.newSingleThreadExecutor();
     }
 }

@@ -81,8 +81,11 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
         super.onViewCreated(viewPrincipal, savedInstanceState);
 
         inicializarDAOS();
+        boolean dispositivoConfigurado = sharedPreferences.getBoolean("DISPOSITIVO_CONFIGURADO", false);
         setItemsPuntoControl();
-        setDeviceNameIfExists();
+        if(!!dispositivoConfigurado){
+            setDeviceNameIfExists();
+        }
         inicializarSwitchs();
 
         binding.clConfiguracionInicial.setOnTouchListener((view, motionEvent) -> {
@@ -164,6 +167,9 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
         binding.switchTeclado.setOnCheckedChangeListener((compoundButton, b) -> {
             editor.putBoolean("TECLADO_ACTIVADO", b).apply();
         });
+        binding.switchPermitirEncriptado.setOnCheckedChangeListener((compoundButton, b) -> {
+            editor.putBoolean("PERMITIR_ENCRIPTADO", b).apply();
+        });
         binding.switchPermitirPrefijo.setOnCheckedChangeListener((compoundButton, b) -> {
             editor.putBoolean("PERMITIR_PREFIJO", b).apply();
         });
@@ -196,6 +202,7 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
     private void inicializarSwitchs() {
         binding.switchVoz.setChecked(sharedPreferences.getBoolean("VOZ_INFORMACION",false));
         binding.switchTeclado.setChecked(sharedPreferences.getBoolean("TECLADO_ACTIVADO",false));
+        binding.switchPermitirEncriptado.setChecked(sharedPreferences.getBoolean("PERMITIR_ENCRIPTADO", false));
         binding.switchPermitirPrefijo.setChecked(sharedPreferences.getBoolean("PERMITIR_PREFIJO",false));
         binding.switchPermitirSinPrefijo.setChecked(sharedPreferences.getBoolean("PERMITIR_SIN_PREFIJO",false));
         binding.switchInactivos.setChecked(sharedPreferences.getBoolean("PERMITIR_INACTIVOS",false));
@@ -250,9 +257,14 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
 
     private void setDeviceNameIfExists(){
         String deviceName = sharedPreferences.getString("DEVICE_NAME", "!DEVICE_NAME");
-        if(deviceName != null){
-            editor.putString("DEVICE_NAME", deviceName).apply();
-            binding.inputDetallesDispositivo.setText(sharedPreferences.getString("DEVICE_NAME", ""));
+        if(deviceName.equals("!DEVICE_NAME")){
+            String deviceNameSQL = terminalesDao.obtenerDeviceName(MacAddressHelper.getMacAddress(ctx));
+            if(deviceNameSQL != null) {
+                editor.putString("DEVICE_NAME", deviceNameSQL).apply();
+                binding.inputDetallesDispositivo.setText(deviceNameSQL);
+            }
+        }else{
+            binding.inputDetallesDispositivo.setText(deviceName);
         }
     }
     private void setDeviceIdIfExists(){
@@ -369,6 +381,7 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
             setItemsPuntoControl();
         } else if(dataPuertas.length() == puertasDao.obtenerCantidadPuertas() && dataTerminales.length() == terminalesDao.obtenerCantidadTerminales()){
             Swal.success(ctx, "Éxito!", "Se han insertado todos los registros obtenidos", 5000);
+            editor.putBoolean("DISPOSITIVO_CONFIGURADO", true).apply();
             setItemsPuntoControl();
             setDeviceNameIfExists();
             setDeviceIdIfExists();
