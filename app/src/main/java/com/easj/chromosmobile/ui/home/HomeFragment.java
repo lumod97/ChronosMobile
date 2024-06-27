@@ -675,7 +675,7 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
 
         int trabajadorStatus = 0;
 
-        Toast.makeText(ctx, dniMarcado, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(ctx, dniMarcado, Toast.LENGTH_SHORT).show();
         if(dniMarcado.length() < 8){
             return 5;
         }
@@ -685,7 +685,7 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         if(dniMarcado.substring(0,2).equals("SJ")){
             return 6;
         }
-        Toast.makeText(ctx, dniEditText + " / " + longitudDNI + " / " + String.valueOf(dniEditText.length() == 10 && longitudDNI == 10 && !!permitirEncriptado && !permitirSinPrefijo), Toast.LENGTH_LONG).show();
+//        Toast.makeText(ctx, dniEditText + " / " + longitudDNI + " / " + String.valueOf(dniEditText.length() == 10 && longitudDNI == 10 && !!permitirEncriptado && !permitirSinPrefijo), Toast.LENGTH_LONG).show();
 
         String observacion = persona.size() > 0 ? persona.get(0).getObservacion() : "PERSONAL NUEVO";
         Log.i("OBS", observacion);

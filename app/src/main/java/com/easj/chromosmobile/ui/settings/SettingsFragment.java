@@ -1,6 +1,7 @@
 package com.easj.chromosmobile.ui.settings;
 
 import static java.lang.Integer.parseInt;
+import static java.lang.Integer.valueOf;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -79,11 +81,19 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
         super.onViewCreated(viewPrincipal, savedInstanceState);
 
         inicializarDAOS();
+        if(!sharedPreferences.getBoolean("NUEVA_VERSION", false)){
+            editor.remove("LONGITUD_DNI").apply();
+            editor.putInt("LONGITUD_DNI", 8).apply();
+            editor.putBoolean("NUEVA_VERSION", true).apply();
+        }
         boolean dispositivoConfigurado = sharedPreferences.getBoolean("DISPOSITIVO_CONFIGURADO", false);
         setItemsPuntoControl();
         if(!!dispositivoConfigurado){
             setDeviceNameIfExists();
         }
+
+//        ESTO SE VA A PONER PARA LA ACTUALIZACIÓN, YA QUE ANTERIORMENTE EL CAMPO SE ESTABA TRATANDO COMO UN STRING PERO AHORA ES UN
+//                ENTERO, POR ELLO SE OBTIENE EL VALOR, SE BORRA Y LUEGO SE SETEA EL VALOR COMO UN ENTERO
         inicializarSwitchs();
 
         binding.clConfiguracionInicial.setOnTouchListener((view, motionEvent) -> {
@@ -213,6 +223,7 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
         binding.switchObservados.setChecked(sharedPreferences.getBoolean("PERMITIR_OBSERVADOS",false));
         binding.switchModoPacking.setChecked(sharedPreferences.getBoolean("MODO_PACKING",false));
         binding.inputLongitudDNI.setText(String.valueOf(sharedPreferences.getInt("LONGITUD_DNI", 8)));
+        binding.switchMostrarScanner.setChecked(sharedPreferences.getBoolean("MOSTRAR_SCANNER", false));
     }
 
     private void registrarDispositivo() throws JSONException {
