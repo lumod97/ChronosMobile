@@ -1,5 +1,8 @@
 package com.easj.chromosmobile.Logica;
 
+import android.app.Application;
+import android.content.Context;
+
 public class CryptorSJ {
     public static String desencriptarCadena(String cadenaADescifrar) throws Exception{
 
@@ -19,7 +22,9 @@ public class CryptorSJ {
             sumaB += Character.getNumericValue(c);
         }
         if (claveB != sumaB % 10) {
-            throw new Exception("Código no coincide con estructura San Juan.");
+            return "error_al_obtener_codigo";
+//            Swal.warning(ctx, "Cuidado!", "El código no coincide con la estructura de San Juan.", 2000);
+//            throw new Exception("Código no coincide con estructura San Juan.");
         }
         desplazamientoADerecha = maximoIndiceCadena - ((maximoIndiceCadena < claveA) ? claveA - maximoIndiceCadena : claveA);
         cadenaIzquierda = "";
@@ -53,7 +58,8 @@ public class CryptorSJ {
             sumaA += c;
         }
         if (claveA != sumaA % 10) {
-            throw new Exception("Código no coincide con estructura San Juan.");
+            return "error_al_obtener_codigo";
+//            throw new Exception("Código no coincide con estructura San Juan.");
         }
         StringBuilder resultado = new StringBuilder();
         for (int i = 0; i < aCadena.length; i++) {

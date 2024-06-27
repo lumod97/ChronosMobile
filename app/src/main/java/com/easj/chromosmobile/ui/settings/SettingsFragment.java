@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Pair;
@@ -68,9 +69,6 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
         binding = FragmentSettingsBinding.inflate(inflater, container, false);
 //        binding = FragmentSettingsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
-
-
 //        final TextView textView = binding.textGallery;
 //        settingsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
@@ -170,6 +168,9 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
         binding.switchPermitirEncriptado.setOnCheckedChangeListener((compoundButton, b) -> {
             editor.putBoolean("PERMITIR_ENCRIPTADO", b).apply();
         });
+        binding.switchMostrarScanner.setOnCheckedChangeListener((compoundButton, b) -> {
+            editor.putBoolean("MOSTRAR_SCANNER", b).apply();
+        });
         binding.switchPermitirPrefijo.setOnCheckedChangeListener((compoundButton, b) -> {
             editor.putBoolean("PERMITIR_PREFIJO", b).apply();
         });
@@ -194,7 +195,10 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
 
             @Override
             public void afterTextChanged(Editable editable) {
-                editor.putString("LONGITUD_DNI", binding.inputLongitudDNI.getText().toString()).apply();
+                String texto = binding.inputLongitudDNI.getText().toString();
+                if(!TextUtils.isEmpty(texto)){
+                    editor.putInt("LONGITUD_DNI", Integer.parseInt(texto)).apply();
+                }
             }
         });
     }
@@ -208,7 +212,7 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
         binding.switchInactivos.setChecked(sharedPreferences.getBoolean("PERMITIR_INACTIVOS",false));
         binding.switchObservados.setChecked(sharedPreferences.getBoolean("PERMITIR_OBSERVADOS",false));
         binding.switchModoPacking.setChecked(sharedPreferences.getBoolean("MODO_PACKING",false));
-        binding.inputLongitudDNI.setText(sharedPreferences.getString("LONGITUD_DNI", "8"));
+        binding.inputLongitudDNI.setText(String.valueOf(sharedPreferences.getInt("LONGITUD_DNI", 8)));
     }
 
     private void registrarDispositivo() throws JSONException {

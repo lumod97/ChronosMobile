@@ -2,16 +2,24 @@ package com.easj.chromosmobile.ui.home;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.AnimatedImageDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -23,6 +31,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.GravityCompat;
@@ -52,6 +66,12 @@ import com.easj.chromosmobile.SQLProcess.SQLLogs;
 import com.easj.chromosmobile.databinding.FragmentHomeBinding;
 import com.easj.chromosmobile.ui.scanner.ScannerViewModel;
 import com.google.android.material.navigation.NavigationView;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.common.InputImage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,6 +86,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callback, SQLConnection.VolleyCallback, SQLLogs.VolleyCallback {
 
@@ -87,6 +110,11 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
     private PuertasDAO puertasDAO;
 
     private ScannerViewModel scannerViewModel;
+//    EXECUTOR DE LA CÁMARA
+    private ExecutorService cameraExecutor;
+    ImageAnalysis imageAnalysis;
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
+
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -97,6 +125,10 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        imageAnalysis = new ImageAnalysis.Builder()
+                .setTargetResolution(new Size(1280, 720))
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build();
         scannerViewModel = new ViewModelProvider(requireActivity()).get(ScannerViewModel.class);
 
         scannerViewModel.getScannedCode().observe(getViewLifecycleOwner(), code -> {
@@ -322,9 +354,141 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 
             }
         });
+
+        // Verificar si el permiso ya está concedido
+        if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Solicitar el permiso
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+//            Intent intent = new Intent(ctx, MainActivity.class);
+//            int pendingIntentId = 123456;
+//            PendingIntent pendingIntent = PendingIntent.getActivity(ctx, pendingIntentId, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+//            AlarmManager mgr = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+//            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent);
+            System.exit(0);
+        } else {
+            iniciarCamara();
+        }
+
         return root;
     }
+//    private class BarcodeAnalyzerHome implements ImageAnalysis.Analyzer {
+//        private final BarcodeScanner scanner;
+//
+//
+//    }
+    void iniciarCamara(){
+//        INICIALIZAMOS EL SCANNER QUE ESTARÁ EN LUGAR DEL TECLADO
+//        if(!sharedPreferences.getBoolean("TECLADO_ACTIVADO", false)){
+        if(!!sharedPreferences.getBoolean("MOSTRAR_SCANNER", false)){
+//            SI EL TECLADO ESTÁ INVISIBLE, MOSTRAMOS EL LAYOUT COMPLETO QUE CONTIENE EL SCANNER
+            binding.layoutMarkingDetailsCard.setVisibility(View.INVISIBLE);
+//            if(binding.viewFinderScanner != null){
+            if(binding.layoutFinderScanner != null){
+                startCamera();
+            }
+        }else {
+//            SI EL TECLADO ESTÁ VISIBLE, OCULTAMOS EL LAYOUT COMPLETO QUE CONTIENE EL SCANNER
+            binding.layoutMarkingDetailsCard.setVisibility(View.VISIBLE);
+            binding.layoutFinderScanner.setVisibility(View.GONE);
+        }
 
+    }
+
+
+@Override
+public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    if (requestCode == REQUEST_CAMERA_PERMISSION) {
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            iniciarCamara();
+        }
+    }
+}
+    private class BarcodeAnalyzerHome implements ImageAnalysis.Analyzer {
+        private final BarcodeScanner scanner;
+
+        BarcodeAnalyzerHome() {
+            BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
+                    .setBarcodeFormats(Barcode.FORMAT_CODE_128)
+                    .build();
+            scanner = BarcodeScanning.getClient(options);
+        }
+
+        @Override
+        public void analyze(@NonNull ImageProxy imageProxy) {
+            @SuppressLint("UnsafeOptInUsageError")
+            InputImage image = InputImage.fromMediaImage(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
+
+            scanner.process(image)
+                    .addOnSuccessListener(barcodes -> {
+                        for (Barcode barcode : barcodes) {
+                            String rawValue = barcode.getRawValue();
+                            // Manejar el resultado aquí
+                            if (rawValue != null) {
+                                scannerViewModel.setScannedCode(rawValue);
+                                imageAnalysis.clearAnalyzer();
+                                Log.d("BarcodeAnalyzer", "Código escaneado: " + rawValue);
+                                // Introduce una pausa de 2 segundos antes de continuar
+                                CountDownTimer countDownTimer = new CountDownTimer(800,800) {
+                                    @Override
+                                    public void onTick(long l) {
+
+                                    }
+
+                                    @Override
+                                    public void onFinish() {
+                                        if(binding.layoutFinderScanner != null){
+                                            imageAnalysis.setAnalyzer(cameraExecutor, new BarcodeAnalyzerHome());
+                                        }
+                                        this.cancel();
+                                    }
+                                };
+
+                                countDownTimer.start();
+                            }
+                        }
+                        imageProxy.close();
+                    })
+                    .addOnFailureListener(e -> imageProxy.close());
+        }
+    }
+
+//    MÉTODO PARA INICIALIZAR LA CÁMARA EN CASO QUE EL TECLADO ESTÉ OCULTO
+private void startCamera() {
+
+    if(scannerViewModel.getScannedCode().getValue() == null ) {
+        cameraExecutor = Executors.newSingleThreadExecutor();
+        ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
+        cameraProviderFuture.addListener(() -> {
+            try {
+                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                bindCameraUseCases(cameraProvider);
+            } catch (ExecutionException | InterruptedException e) {
+
+            }
+        }, ContextCompat.getMainExecutor(requireContext()));
+    }
+}
+//DEPENDENCIA PARA EL MÉTODO startCamera()
+@SuppressLint("UnsafeExperimentalUsageError")
+private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
+    Preview preview = new Preview.Builder()
+            .build();
+    preview.setSurfaceProvider(binding.viewFinderScanner.getSurfaceProvider());
+
+    imageAnalysis.setAnalyzer(cameraExecutor, new BarcodeAnalyzerHome());
+//    imageAnalysis.clearAnalyzer();
+
+    CameraSelector cameraSelector = new CameraSelector.Builder()
+            .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+            .build();
+
+    cameraProvider.unbindAll();
+    cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
+}
+
+//SEGUNDA DEPENDENCIA PARA EL USO DEL SCANNER
     private void inicializarIdDispositivo() {
         String idDispositivo = String.valueOf(sharedPreferences.getInt("DEVICE_ID", 0));
         binding.textIdDispositivo.setText(idDispositivo.equals("0") ? "NO CONFIGURADO" : idDispositivo);
@@ -349,26 +513,26 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
             Swal.warning(ctx, "Advertencia!","NO SE PUEDEN REALIZAR MARCAS POR QUE NO SE HA CONFIGURADO EL PUNTO DE CONTROL, COMUNIQUESE CON EL ÁREA DE SISTEMAS");
         }else {
             String dniMarcado = dni;
+            String dniEditText = dni;
             //RETIRAMOS EL SJ DE LA CADENA DE TEXTO A ANALIZAR
 //                        OBTENEMOS EL REGISTRO DE LA PERSONA
             boolean permitirEncriptado = sharedPreferences.getBoolean("PERMITIR_ENCRIPTADO", false);
+            int longitudPermitida = sharedPreferences.getInt("LONGITUD_DNI", 8);
             if(!!permitirEncriptado){
-                if(dniMarcado.length() == 10){
+                if(dniMarcado.length() == longitudPermitida){
                     try {
                         dniMarcado = CryptorSJ.desencriptarCadena(dniMarcado);
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        Swal.error(ctx, "Error!", "Error al obtener codigo:" + e.toString(), 1500);
                     }
                 }
             }
+
             String dniBusqueda = dniMarcado;
-//                    if(dniBusqueda.substring(0,2).equals("SJ")){
-//                        dniBusqueda = dniBusqueda.substring(2);
-//                    }
 
             List<Personas> personasEncontradas = personasDAO.buscarPersona(dniBusqueda);
 //                        VALIDAMOS PERMISOS DE LA MARCA A REALIZAR
-            switch (validarPermisoMarca(dniMarcado,personasEncontradas)) {
+            switch (validarPermisoMarca(dniMarcado.toString(), dniEditText.toString(), personasEncontradas)) {
                 case 0:
                     Swal.error(ctx, "No permitido", "No está permitido este tipo de marcación");
                     binding.inputDNI.setText("");
@@ -408,6 +572,16 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
                     break;
                 case 6:
                     Swal.error(ctx, "No permitido", "No está permitida la marcación con prefijo");
+                    binding.tvError.setTextColor(getResources().getColor(R.color.error));
+                    break;
+                case 7:
+                    Swal.warning(ctx, "No permitido", "No está permitido realizar marcación con DNI, o usted tiene un fotocheck antiguo.");
+                    break;
+                case 8:
+//                    Swal.error(ctx, "ERROR!", "Ha ocurrido un error al obtener el código.");
+                    Swal.warning(ctx, "Cuidado!", "El código no coincide con la estructura de San Juan.", 1500);
+                    binding.tvError.setText("Ha ocurrido un error al obtener el código.");
+                    break;
                 default:
                     Swal.error(ctx, "Alerta!", "Ha ocurrido un error desconocido al procesar la marca.");
                     break;
@@ -473,7 +647,7 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
         return accion;
     }
 
-    private int validarPermisoMarca(String dniMarcado ,List<Personas> persona) {
+    private int validarPermisoMarca(String dniMarcado, String dniEditText, List<Personas> persona) {
 //        0 no pasa
 //        1 pasa cuando está habilitado
 //        2 pasa tod -- PERMITIR TOD
@@ -481,12 +655,18 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 //        4 no hay dni digitado
 //        5 faltan caracteres
 //        6 contiene prefijo
+//        7 marcó DNI o tiene fotocheck antiguo
+//        8 error al obtener código
+
+        if(dniMarcado.equals("error_al_obtener_codigo")) {
+            return 8;
+        }
 
         //        SE OBTIENE EL TEXTO DEL INPUT PARA SU POSTERIOR PROCESAMIENTO
+        int longitudDNI = sharedPreferences.getInt("LONGITUD_DNI", 8);
+        boolean permitirEncriptado = sharedPreferences.getBoolean("PERMITIR_ENCRIPTADO", false);
         boolean permitirPrefijo = sharedPreferences.getBoolean("PERMITIR_PREFIJO", false);
         boolean permitirSinPrefijo = sharedPreferences.getBoolean("PERMITIR_SIN_PREFIJO", false);
-
-        String textDNI = binding.inputDNI.getText().toString();
 //        SE EVALÚA LA CANTIDAD DE CARACTERES DE ACUERDO AL VALOR GUARDADO EN SHARED PREFERENCES
 //                VARIABLE: ACCEPT_PREFIX
 
@@ -495,6 +675,7 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 
         int trabajadorStatus = 0;
 
+        Toast.makeText(ctx, dniMarcado, Toast.LENGTH_SHORT).show();
         if(dniMarcado.length() < 8){
             return 5;
         }
@@ -504,11 +685,14 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
         if(dniMarcado.substring(0,2).equals("SJ")){
             return 6;
         }
-
+        Toast.makeText(ctx, dniEditText + " / " + longitudDNI + " / " + String.valueOf(dniEditText.length() == 10 && longitudDNI == 10 && !!permitirEncriptado && !permitirSinPrefijo), Toast.LENGTH_LONG).show();
 
         String observacion = persona.size() > 0 ? persona.get(0).getObservacion() : "PERSONAL NUEVO";
         Log.i("OBS", observacion);
-        if(permitirInactivos && !permitirObservados){
+
+        if(dniEditText.length() == 10 && longitudDNI == 10 && !!permitirEncriptado && !permitirSinPrefijo){
+            trabajadorStatus = 0;
+        }else if(permitirInactivos && !permitirObservados){
             if(observacion.equals("HABILITADO")){
                 trabajadorStatus = 1;
             } else if (observacion.equals("PERSONAL NUEVO")) {
@@ -533,6 +717,12 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
         }
 
         switch (trabajadorStatus){
+            case 0 :
+                if(!!permitirEncriptado && !permitirSinPrefijo && !permitirPrefijo && dniEditText.length() == 10 && longitudDNI == 10){
+                    return 1;
+                }else {
+                    return 7;
+                }
             case 1 :
                 if(permitirPrefijo && permitirSinPrefijo){
                     if(dniMarcado.length() > 8 && dniMarcado.substring(0,2).equals("SJ")){
@@ -750,6 +940,7 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
         List<Marcas> marcas = marcasDAO.obtenerMarcasSinProcesar();
         String cantidadMarcasSinProcesar = String.valueOf(marcas.size());
         binding.tvMarcasSinProcesar.setText(cantidadMarcasSinProcesar);
+//        binding.viewFinderScanner.on
     }
 
     private void inicializarDB() {

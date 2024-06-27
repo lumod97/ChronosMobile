@@ -88,7 +88,7 @@ public class ScannerFragment extends Fragment {
         imageAnalysis.setAnalyzer(cameraExecutor, new BarcodeAnalyzer());
 
         CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
 
         cameraProvider.unbindAll();
