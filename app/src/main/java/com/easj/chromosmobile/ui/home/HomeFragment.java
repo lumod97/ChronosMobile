@@ -480,9 +480,16 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
     imageAnalysis.setAnalyzer(cameraExecutor, new BarcodeAnalyzerHome());
 //    imageAnalysis.clearAnalyzer();
 
-    CameraSelector cameraSelector = new CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
-            .build();
+    CameraSelector cameraSelector;
+    if (!!sharedPreferences.getBoolean("USAR_CAMARA_FRONTAL", false)){
+        cameraSelector = new CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                .build();
+    }else {
+        cameraSelector = new CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                .build();
+    }
 
     cameraProvider.unbindAll();
     cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);

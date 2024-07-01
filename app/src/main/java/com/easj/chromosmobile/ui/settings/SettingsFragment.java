@@ -181,6 +181,9 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
         binding.switchMostrarScanner.setOnCheckedChangeListener((compoundButton, b) -> {
             editor.putBoolean("MOSTRAR_SCANNER", b).apply();
         });
+        binding.switchAlternarCamara.setOnCheckedChangeListener((compoundButton, b) -> {
+            editor.putBoolean("USAR_CAMARA_FRONTAL", b).apply();
+        });
         binding.switchPermitirPrefijo.setOnCheckedChangeListener((compoundButton, b) -> {
             editor.putBoolean("PERMITIR_PREFIJO", b).apply();
         });
@@ -224,6 +227,7 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
         binding.switchModoPacking.setChecked(sharedPreferences.getBoolean("MODO_PACKING",false));
         binding.inputLongitudDNI.setText(String.valueOf(sharedPreferences.getInt("LONGITUD_DNI", 8)));
         binding.switchMostrarScanner.setChecked(sharedPreferences.getBoolean("MOSTRAR_SCANNER", false));
+        binding.switchAlternarCamara.setChecked(sharedPreferences.getBoolean("USAR_CAMARA_FRONTAL", false));
     }
 
     private void registrarDispositivo() throws JSONException {

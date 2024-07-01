@@ -717,6 +717,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/dTopNoPermitirPrefijo" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+<!--            SWITCH DE CAMBIAR CÁMARA-->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clMostrarScanner"
                 android:layout_width="match_parent"
@@ -786,14 +787,84 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/dTopMostrarScanner" />
             </androidx.constraintlayout.widget.ConstraintLayout>
+<!--            SWITCH PARA ALTERNAR CÁMARA A USAR-->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clAlternarCamara"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clMostrarScanner">
 
+                <View
+                    android:id="@+id/dTopAlternarCamara"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/imagenAlternarCamara"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="20dp"
+                    android:src="@drawable/ic_camera_front"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textoAlternarCamara"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Usar cámara frontal"
+                    app:layout_constraintStart_toEndOf="@+id/imagenAlternarCamara"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopAlternarCamara" />
+
+                <TextView
+                    android:id="@+id/textoSubtituloAlternarCamara"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="23dp"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Alternar entre la cámara frontal y la cámara trasera del dispositivo."
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomAlternarCamara"
+                    app:layout_constraintEnd_toStartOf="@+id/switchAlternarCamara"
+                    app:layout_constraintStart_toStartOf="@+id/textoAlternarCamara"
+                    app:layout_constraintTop_toBottomOf="@+id/textoAlternarCamara" />
+
+                <View
+                    android:id="@+id/dBottomAlternarCamara"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <Switch
+                    android:id="@+id/switchAlternarCamara"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    app:layout_constraintBottom_toTopOf="@+id/dBottomAlternarCamara"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dTopAlternarCamara" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+<!--            SWITCH PARA PERMITIR INACTIVOS-->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clPermitirInactivo"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/clMostrarScanner">
+                app:layout_constraintTop_toBottomOf="@+id/clAlternarCamara">
 
                 <View
                     android:id="@+id/dTopPermitirInactivo"
