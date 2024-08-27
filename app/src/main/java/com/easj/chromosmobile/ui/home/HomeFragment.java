@@ -50,6 +50,7 @@ import com.android.volley.VolleyError;
 import com.easj.chromosmobile.Adapters.TipoMarcacion.AdapterTipoMarcacion;
 import com.easj.chromosmobile.AppDatabase;
 import com.easj.chromosmobile.ChronosMobile;
+import com.easj.chromosmobile.DeviceProcess.MacAddressHelper;
 import com.easj.chromosmobile.Entitys.Logs;
 import com.easj.chromosmobile.Entitys.Marcas;
 import com.easj.chromosmobile.Entitys.Personas;
@@ -57,6 +58,7 @@ import com.easj.chromosmobile.Interfaces.DAO.LogsDAO;
 import com.easj.chromosmobile.Interfaces.DAO.MarcasDAO;
 import com.easj.chromosmobile.Interfaces.DAO.PersonasDAO;
 import com.easj.chromosmobile.Interfaces.DAO.PuertasDAO;
+import com.easj.chromosmobile.Interfaces.DAO.TerminalesDAO;
 import com.easj.chromosmobile.Logica.CryptorSJ;
 import com.easj.chromosmobile.Logica.Swal;
 import com.easj.chromosmobile.MainActivity;
@@ -108,6 +110,7 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
     private Context ctx;
     private SharedPreferences.Editor editor;
     private PuertasDAO puertasDAO;
+    private TerminalesDAO terminalesDAO;
 
     private ScannerViewModel scannerViewModel;
 //    EXECUTOR DE LA CÁMARA
@@ -124,7 +127,7 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
+        binding.checkBoxCena.setVisibility(View.INVISIBLE);
         imageAnalysis = new ImageAnalysis.Builder()
                 .setTargetResolution(new Size(1280, 720))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -138,11 +141,14 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
                 try {
 //                    String dni = CryptorSJ.desencriptarCadena(code);
 //                    Toast.makeText(ctx, dni, Toast.LENGTH_SHORT).show();
+                    tipoMarcacion = "L";
                     evaluarMarca(code);
 //                    Toast.makeText(requireContext(), "Código escaneado: " + dni, Toast.LENGTH_LONG).show();
                     scannerViewModel.setScannedCode(null);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
+                }finally{
+                    tipoMarcacion = "T";
                 }
 
             }
@@ -430,7 +436,7 @@ public void onRequestPermissionsResult(int requestCode, @NonNull String[] permis
                                 imageAnalysis.clearAnalyzer();
                                 Log.d("BarcodeAnalyzer", "Código escaneado: " + rawValue);
                                 // Introduce una pausa de 2 segundos antes de continuar
-                                CountDownTimer countDownTimer = new CountDownTimer(800,800) {
+                                CountDownTimer countDownTimer = new CountDownTimer(2500,2500) {
                                     @Override
                                     public void onTick(long l) {
 
@@ -505,7 +511,8 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         int idPuntoControl = sharedPreferences.getInt("ID_PUNTO_CONTROL_SELECTED", 0);
         String puntoControl = "0";
         if(idPuntoControl != 0){
-            puntoControl = puertasDAO.obtenerDescripcionPuerta(idPuntoControl);
+//            puntoControl = puertasDAO.obtenerDescripcionPuerta(idPuntoControl);
+            puntoControl =  terminalesDAO.obtenerDeviceName(MacAddressHelper.getMacAddress(ctx));
         }
         binding.textPuntoControl.setText(puntoControl.equals("0") ? "NO CONFIGURADO" : puntoControl);
     }
@@ -516,6 +523,9 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
             Swal.warning(ctx, "Alerta!", "Debe digitar un DNI");
         }else if(binding.inputTipoMarcacion.getText().toString().length() == 0){
             Swal.warning(ctx, "Alerta!", "Debes seleccionar un tipo de marcación antes de realizar una marcación.");
+            MediaPlayer mediaPlayer;
+            mediaPlayer = MediaPlayer.create(ctx, R.raw.alerta_tipo_marcacion);
+            mediaPlayer.start();
         }else if (idPuntoControl == 0) {
             Swal.warning(ctx, "Advertencia!","NO SE PUEDEN REALIZAR MARCAS POR QUE NO SE HA CONFIGURADO EL PUNTO DE CONTROL, COMUNIQUESE CON EL ÁREA DE SISTEMAS");
         }else {
@@ -604,12 +614,16 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         int accion = obtenerAccion(binding.inputTipoMarcacion.getText().toString());
 
         boolean marcaExiste = marcasDAO.verificarExistenciaMarca(dniBuscar, obtenerFecha(), accion);
+        boolean verificarExistenciaMarca = sharedPreferences.getBoolean("VERIFICAR_EXISTENCIA_MARCA", false);
 
-        if(marcaExiste){
+        if(marcaExiste && verificarExistenciaMarca){
+//            MediaPlayer mediaPlayer;
+//            mediaPlayer = MediaPlayer.create(ctx, R.raw.a_la_papa);
             binding.textNombres.setText("");
             binding.textApellidos.setText("");
             binding.tvError.setText("YA HAY UN REGISTRO PARA ESTE TRABAJADOR CON ESTA ACCIÓN.");
             binding.tvError.setTextColor(getResources().getColor(R.color.warning));
+//            mediaPlayer.start();
         }else{
             int idPuntoControl = sharedPreferences.getInt("ID_PUNTO_CONTROL_SELECTED", 0);
             MediaPlayer mp = obtenerSonido();
@@ -957,6 +971,7 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         personasDAO = db.personasDAO();
         logsDAO = db.logsDAO();
         puertasDAO = db.puertasDAO();
+        terminalesDAO = db.terminalesDAO();
     }
 
 

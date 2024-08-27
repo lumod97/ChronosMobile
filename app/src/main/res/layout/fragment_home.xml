@@ -592,6 +592,7 @@
                     android:focusableInTouchMode="false"
                     android:text="CENA"
                     android:textSize="18dp"
+                    android:visibility="invisible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
