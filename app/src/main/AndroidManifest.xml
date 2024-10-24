@@ -5,40 +5,48 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name = "android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.LOCAL_MAC_ADDRESS" />
-<!--    AGREGAMOS EL PERMISO DE CÁMARA PARA PODER USAR EL SCANNER DE ZXING-->
+    <!-- Permiso para usar la cámara -->
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+    <!-- Nota: Solo se puede usar si es una app de sistema -->
+    <uses-permission
+        android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
+        tools:ignore="ProtectedPermissions" />
 
     <application
+        android:name=".ChronosMobile"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/clock_icon"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@drawable/clock_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.ChronosMobile"
-        android:name=".ChronosMobile"
-        android:enableOnBackInvokedCallback="true"
-        android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="31">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:windowSoftInputMode="stateAlwaysHidden">
             <meta-data
                 android:name="com.google.android.gms.version"
                 android:value="@integer/google_play_services_version" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- BroadcastReceiver para AlarmManager -->
+        <receiver
+            android:name="com.easj.chromosmobile.DeviceProcess.HourlyAlarmReceiver"
+            android:exported="false" /> <!-- Cambiar a true si es accesible desde otras apps -->
     </application>
 
 </manifest>

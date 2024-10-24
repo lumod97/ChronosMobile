@@ -4,10 +4,7 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.AnimatedImageDrawable;
@@ -27,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,6 +46,7 @@ import com.android.volley.VolleyError;
 import com.easj.chromosmobile.Adapters.TipoMarcacion.AdapterTipoMarcacion;
 import com.easj.chromosmobile.AppDatabase;
 import com.easj.chromosmobile.ChronosMobile;
+import com.easj.chromosmobile.DeviceProcess.AlarmSetup;
 import com.easj.chromosmobile.DeviceProcess.MacAddressHelper;
 import com.easj.chromosmobile.Entitys.Logs;
 import com.easj.chromosmobile.Entitys.Marcas;
@@ -88,16 +85,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callback, SQLConnection.VolleyCallback, SQLLogs.VolleyCallback {
 
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
     SharedPreferences sharedPreferences;
-    private FragmentHomeBinding binding;
-    private Handler handler;
-    private Handler handlerConnection;
     MarcasDAO marcasDAO;
     PersonasDAO personasDAO;
     LogsDAO logsDAO;
@@ -105,33 +101,39 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
     String ultimaTransferencia, ultimaDescarga;
     Thread threadConnection;
     boolean ejecutarPing;
-    private String horaInicio;
     String tipoMarcacion = "T";
+    ImageAnalysis imageAnalysis;
+    private FragmentHomeBinding binding;
+    private Handler handler;
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            // Actualiza el contenido del TextView aquí
+            actualizarReloj();
+
+            // Repite la tarea cada segundo
+            handler.postDelayed(this, 1000);
+        }
+    };
+    private Handler handlerConnection;
+    private String horaInicio;
     private Context ctx;
     private SharedPreferences.Editor editor;
     private PuertasDAO puertasDAO;
     private TerminalesDAO terminalesDAO;
-
     private ScannerViewModel scannerViewModel;
-//    EXECUTOR DE LA CÁMARA
+    //    EXECUTOR DE LA CÁMARA
     private ExecutorService cameraExecutor;
-    ImageAnalysis imageAnalysis;
-    private static final int REQUEST_CAMERA_PERMISSION = 100;
+    private boolean isReachable;
+    private DrawerLayout dl;
 
-
-
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        HomeViewModel homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         binding.checkBoxCena.setVisibility(View.INVISIBLE);
-        imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetResolution(new Size(1280, 720))
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build();
+        imageAnalysis = new ImageAnalysis.Builder().setTargetResolution(new Size(1280, 720)).setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
         scannerViewModel = new ViewModelProvider(requireActivity()).get(ScannerViewModel.class);
 
         scannerViewModel.getScannedCode().observe(getViewLifecycleOwner(), code -> {
@@ -146,14 +148,13 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 //                    Toast.makeText(requireContext(), "Código escaneado: " + dni, Toast.LENGTH_LONG).show();
                     scannerViewModel.setScannedCode(null);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }finally{
+                    Swal.error(ctx, "Oops!", "Hubo un error al escanear el código.", 2000);
+                } finally {
                     tipoMarcacion = "T";
                 }
 
             }
         });
-
 
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(root.getWindowToken(), 0);
@@ -165,7 +166,7 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
             public void handleMessage(Message msg) {
                 // Aquí puedes manejar la respuesta del ping
                 if (msg.what == 1) {
-                    boolean isReachable = msg.getData().getBoolean("isReachable");
+                    isReachable = msg.getData().getBoolean("isReachable");
                 }
             }
         };
@@ -181,13 +182,13 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
         binding.inputDNI.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(binding != null){
+                if (binding != null) {
                     binding.inputDNI.post(new Runnable() {
                         @Override
                         public void run() {
-                            if(binding != null){
+                            if (binding != null) {
                                 binding.inputDNI.requestFocus();
-                                if(binding.inputDNI.getText().toString().length() >= 8){
+                                if (binding.inputDNI.getText().toString().length() >= 8) {
                                     tipoMarcacion = "L";
                                     binding.buttonCheck.callOnClick();
                                     binding.inputDNI.setText("");
@@ -204,10 +205,10 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 //        INICIALIZAMOS LA DB
         inicializarDB();
 //        INICIALIZAMOS ULTIMA DESCARGA
-        ultimaDescarga = logsDAO.obtenerMaximoLog("descargar");
+        ultimaDescarga = logsDAO.obtenerMaximoLog("descargar personas");
         binding.textLastDownload.setText(ultimaDescarga);
 //        INICIALIZAMOS ULTIMA TRANSFERENCIA
-        ultimaTransferencia = logsDAO.obtenerMaximoLog("transferir");
+        ultimaTransferencia = logsDAO.obtenerMaximoLog("transferir marcas");
         binding.textlastTransfer.setText(ultimaTransferencia);
 //        INICIALIZAMOS LAS MARCAS SIN PROCESAR
         obtenerMarcasSinProcesar();
@@ -236,9 +237,22 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 
         // ABRIR MODAL PARA SELECCIONAR TIPO DE MARCACIÓN
         binding.inputTipoMarcacion.setOnClickListener(view -> {
+            String lastAccion = binding.inputTipoMarcacion.getText().toString();
 //            ENVIAMOS LA LISTA DE ITEMS QUE QUEREMOS QUE APAREZCA EN EL MODAL
             Swal.edit(ctx, listaItems, tipoMarcacion -> {
-                binding.inputTipoMarcacion.setText(tipoMarcacion);
+                if(Objects.equals(tipoMarcacion, "SALIDA AYER") || Objects.equals(tipoMarcacion, "SALIDA")){
+                    Swal.confirm(ctx, "¿Seguro?", "¿ESTÁS SEGURO QUE DESEAS SELECCIONAR "+tipoMarcacion+"?")
+                        .setConfirmClickListener(sweetAlertDialog -> {
+                            sweetAlertDialog.dismissWithAnimation();
+                            binding.inputTipoMarcacion.setText(tipoMarcacion);
+                        })
+                        .setCancelClickListener(sweetAlertDialog -> {
+                            sweetAlertDialog.dismissWithAnimation();
+                            binding.inputTipoMarcacion.setText(lastAccion);
+                        });
+                }else {
+                    binding.inputTipoMarcacion.setText(tipoMarcacion);
+                }
             }).show();
         });
 
@@ -247,7 +261,7 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 //        ELIMINAR CARACTERES
         binding.buttonX.setOnClickListener(view -> {
             String textoActual = binding.inputDNI.getText().toString();
-            if(textoActual.length() > 0){
+            if (textoActual.length() > 0) {
                 textoActual = textoActual.substring(0, textoActual.length() - 1);
                 binding.inputDNI.setText(textoActual);
             }
@@ -273,8 +287,8 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 
 //            ABRIR DRAWER
             MainActivity mainActivity = (MainActivity) getActivity();
-            if(mainActivity.obtenerDrawer() != null){
-                DrawerLayout dl = mainActivity.obtenerDrawer();
+            if (mainActivity.obtenerDrawer() != null) {
+                dl = mainActivity.obtenerDrawer();
                 dl.openDrawer(GravityCompat.START);
 
                 navigationView = mainActivity.obtenerNavigationView();
@@ -290,40 +304,15 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 //                });
 //                ACCION PARA TRANSFERIR
                 itemTransferir.setOnMenuItemClickListener(menuItem -> {
-                    if(!binding.tvMarcasSinProcesar.getText().toString().equals("0")) {
+                    if (!binding.tvMarcasSinProcesar.getText().toString().equals("0")) {
                         try {
-                            List<Marcas> marcasSinProcesar = marcasDAO.obtenerMarcasSinProcesar();
-                            JSONArray marcas = new JSONArray();
-
-                            for(Marcas marca: marcasSinProcesar){
-                                JSONObject elemento = new JSONObject();
-                                elemento.put("IdMarcacion", marca.getIdMarcacion());
-                                elemento.put("Dni", marca.getDni());
-                                elemento.put("Fecha", marca.getFecha());
-                                elemento.put("Hora", marca.getHora());
-                                elemento.put("Accion", marca.getAccion());
-                                elemento.put("IdDispositivo", marca.getIdDispositivo());
-                                elemento.put("Procesada", marca.getProcesada());
-                                elemento.put("IdPuntoControl", marca.getIdPuntoControl());
-                                elemento.put("FechaEnvio", marca.getFechaEnvio());
-                                elemento.put("TipoMarcacion", marca.getTipoMarcacion());
-                                marcas.put(elemento);
-                            }
-                            JSONObject params = new JSONObject();
-                            try {
-                                params.put("marcas", marcas);
-                                SQLConnection sqlConnection = new SQLConnection();
-                                sqlConnection.transferirMarcas(ctx, this, params);
-                            } catch (JSONException e) {
-                                Log.e("RESPONSE", e.getMessage());
-                                e.printStackTrace();
-                            }
+                            transferirMarcas();
                         } catch (Exception e) {
                             Swal.error(ctx, "Oops!", "No se han podido procesar las marcas", 5000);
                         } finally {
                             dl.closeDrawer(GravityCompat.START);
                         }
-                    }else {
+                    } else {
                         Swal.info(ctx, "Todo está bien.", "No hay marcas para procesar en estos momentos", 5000);
                     }
 
@@ -331,9 +320,6 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
                 });
 //                ACCION PARA DESCARGAR
                 itemDescargar.setOnMenuItemClickListener(menuItem -> {
-                    horaInicio = obtenerFechaHora();
-                    mostrarLoaders(true);
-                    dl.closeDrawer(GravityCompat.START);
                     obtenerPersonas();
                     return false;
                 });
@@ -362,8 +348,7 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
         });
 
         // Verificar si el permiso ya está concedido
-        if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // Solicitar el permiso
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
 //            Intent intent = new Intent(ctx, MainActivity.class);
@@ -378,22 +363,55 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 
         return root;
     }
-//    private class BarcodeAnalyzerHome implements ImageAnalysis.Analyzer {
-//        private final BarcodeScanner scanner;
-//
-//
-//    }
-    void iniciarCamara(){
+
+    private void transferirMarcas() {
+        List<Marcas> marcasSinProcesar = marcasDAO.obtenerMarcasSinProcesar();
+        JSONArray marcas = new JSONArray();
+
+        for (Marcas marca : marcasSinProcesar) {
+            JSONObject elemento = new JSONObject();
+            try {
+                elemento.put("IdMarcacion", marca.getIdMarcacion());
+                elemento.put("Dni", marca.getDni());
+                elemento.put("Fecha", marca.getFecha());
+                elemento.put("Hora", marca.getHora());
+                elemento.put("Accion", marca.getAccion());
+                elemento.put("IdDispositivo", marca.getIdDispositivo());
+                elemento.put("Procesada", marca.getProcesada());
+                elemento.put("IdPuntoControl", marca.getIdPuntoControl());
+                elemento.put("FechaEnvio", marca.getFechaEnvio());
+                elemento.put("TipoMarcacion", marca.getTipoMarcacion());
+                marcas.put(elemento);
+            } catch (JSONException e) {
+                Swal.error(ctx, "Oops!", "Hubo un error al momento de transformar los tareos para el envío!", 2000);
+            }
+        }
+        JSONObject params = new JSONObject();
+        try {
+            params.put("marcas", marcas);
+            SQLConnection sqlConnection = new SQLConnection();
+            sqlConnection.transferirMarcas(ctx, this, params);
+            if(sharedPreferences.getBoolean("SINCRONIZACION_AUTOMATICA", false)){
+                scheduleHourlyAlarm();
+            }
+            binding.textlastTransfer.setText(ultimaTransferencia);
+        } catch (JSONException e) {
+            Log.e("RESPONSE", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    void iniciarCamara() {
 //        INICIALIZAMOS EL SCANNER QUE ESTARÁ EN LUGAR DEL TECLADO
 //        if(!sharedPreferences.getBoolean("TECLADO_ACTIVADO", false)){
-        if(!!sharedPreferences.getBoolean("MOSTRAR_SCANNER", false)){
+        if (sharedPreferences.getBoolean("MOSTRAR_SCANNER", false)) {
 //            SI EL TECLADO ESTÁ INVISIBLE, MOSTRAMOS EL LAYOUT COMPLETO QUE CONTIENE EL SCANNER
             binding.layoutMarkingDetailsCard.setVisibility(View.INVISIBLE);
 //            if(binding.viewFinderScanner != null){
-            if(binding.layoutFinderScanner != null){
+            if (binding.layoutFinderScanner != null) {
                 startCamera();
             }
-        }else {
+        } else {
 //            SI EL TECLADO ESTÁ VISIBLE, OCULTAMOS EL LAYOUT COMPLETO QUE CONTIENE EL SCANNER
             binding.layoutMarkingDetailsCard.setVisibility(View.VISIBLE);
             binding.layoutFinderScanner.setVisibility(View.GONE);
@@ -401,146 +419,97 @@ public class HomeFragment extends Fragment implements AdapterTipoMarcacion.Callb
 
     }
 
-
-@Override
-public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    if (requestCode == REQUEST_CAMERA_PERMISSION) {
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            iniciarCamara();
-        }
-    }
-}
-    private class BarcodeAnalyzerHome implements ImageAnalysis.Analyzer {
-        private final BarcodeScanner scanner;
-
-        BarcodeAnalyzerHome() {
-            BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
-                    .setBarcodeFormats(Barcode.FORMAT_CODE_128)
-                    .build();
-            scanner = BarcodeScanning.getClient(options);
-        }
-
-        @Override
-        public void analyze(@NonNull ImageProxy imageProxy) {
-            @SuppressLint("UnsafeOptInUsageError")
-            InputImage image = InputImage.fromMediaImage(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
-
-            scanner.process(image)
-                    .addOnSuccessListener(barcodes -> {
-                        for (Barcode barcode : barcodes) {
-                            String rawValue = barcode.getRawValue();
-                            // Manejar el resultado aquí
-                            if (rawValue != null) {
-                                scannerViewModel.setScannedCode(rawValue);
-                                imageAnalysis.clearAnalyzer();
-                                Log.d("BarcodeAnalyzer", "Código escaneado: " + rawValue);
-                                // Introduce una pausa de 2 segundos antes de continuar
-                                CountDownTimer countDownTimer = new CountDownTimer(2500,2500) {
-                                    @Override
-                                    public void onTick(long l) {
-
-                                    }
-
-                                    @Override
-                                    public void onFinish() {
-                                        if(binding.layoutFinderScanner != null){
-                                            imageAnalysis.setAnalyzer(cameraExecutor, new BarcodeAnalyzerHome());
-                                        }
-                                        this.cancel();
-                                    }
-                                };
-
-                                countDownTimer.start();
-                            }
-                        }
-                        imageProxy.close();
-                    })
-                    .addOnFailureListener(e -> imageProxy.close());
-        }
-    }
-
-//    MÉTODO PARA INICIALIZAR LA CÁMARA EN CASO QUE EL TECLADO ESTÉ OCULTO
-private void startCamera() {
-
-    if(scannerViewModel.getScannedCode().getValue() == null ) {
-        cameraExecutor = Executors.newSingleThreadExecutor();
-        ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
-        cameraProviderFuture.addListener(() -> {
-            try {
-                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                bindCameraUseCases(cameraProvider);
-            } catch (ExecutionException | InterruptedException e) {
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                iniciarCamara();
             }
-        }, ContextCompat.getMainExecutor(requireContext()));
+        }
     }
-}
-//DEPENDENCIA PARA EL MÉTODO startCamera()
-@SuppressLint("UnsafeExperimentalUsageError")
-private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
-    Preview preview = new Preview.Builder()
-            .build();
-    preview.setSurfaceProvider(binding.viewFinderScanner.getSurfaceProvider());
 
-    imageAnalysis.setAnalyzer(cameraExecutor, new BarcodeAnalyzerHome());
+    //    MÉTODO PARA INICIALIZAR LA CÁMARA EN CASO QUE EL TECLADO ESTÉ OCULTO
+    private void startCamera() {
+
+        if (scannerViewModel.getScannedCode().getValue() == null) {
+            cameraExecutor = Executors.newSingleThreadExecutor();
+            ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
+            cameraProviderFuture.addListener(() -> {
+                try {
+                    ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                    bindCameraUseCases(cameraProvider);
+                } catch (ExecutionException | InterruptedException e) {
+
+                }
+            }, ContextCompat.getMainExecutor(requireContext()));
+        }
+    }
+
+    //DEPENDENCIA PARA EL MÉTODO startCamera()
+    @SuppressLint("UnsafeExperimentalUsageError")
+    private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
+        Preview preview = new Preview.Builder().build();
+        preview.setSurfaceProvider(binding.viewFinderScanner.getSurfaceProvider());
+
+        imageAnalysis.setAnalyzer(cameraExecutor, new BarcodeAnalyzerHome());
 //    imageAnalysis.clearAnalyzer();
 
-    CameraSelector cameraSelector;
-    if (!!sharedPreferences.getBoolean("USAR_CAMARA_FRONTAL", false)){
-        cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
-                .build();
-    }else {
-        cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                .build();
+        CameraSelector cameraSelector;
+        if (sharedPreferences.getBoolean("USAR_CAMARA_FRONTAL", false)) {
+            cameraSelector = new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_FRONT).build();
+        } else {
+            cameraSelector = new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
+        }
+
+        cameraProvider.unbindAll();
+        cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
     }
 
-    cameraProvider.unbindAll();
-    cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
-}
-
-//SEGUNDA DEPENDENCIA PARA EL USO DEL SCANNER
+    //SEGUNDA DEPENDENCIA PARA EL USO DEL SCANNER
     private void inicializarIdDispositivo() {
-        String idDispositivo = String.valueOf(sharedPreferences.getInt("DEVICE_ID", 0));
+        String idDispositivo = String.valueOf(sharedPreferences.getInt("ID_TERMINAL", 0));
         binding.textIdDispositivo.setText(idDispositivo.equals("0") ? "NO CONFIGURADO" : idDispositivo);
     }
 
     private void inicializarPuntoControl() {
         int idPuntoControl = sharedPreferences.getInt("ID_PUNTO_CONTROL_SELECTED", 0);
         String puntoControl = "0";
-        if(idPuntoControl != 0){
+        if (idPuntoControl != 0) {
 //            puntoControl = puertasDAO.obtenerDescripcionPuerta(idPuntoControl);
-            puntoControl =  terminalesDAO.obtenerDeviceName(MacAddressHelper.getMacAddress(ctx));
+            puntoControl = terminalesDAO.obtenerDeviceName(MacAddressHelper.getMacAddress(ctx));
         }
-        binding.textPuntoControl.setText(puntoControl.equals("0") ? "NO CONFIGURADO" : puntoControl);
+        if(puntoControl != null){
+            binding.textPuntoControl.setText(puntoControl.equals("0") ? "NO CONFIGURADO" : puntoControl);
+        }else {
+            binding.textPuntoControl.setText("No configurado");
+        }
     }
 
-    private void evaluarMarca(String dni){
+    private void evaluarMarca(String dni) {
         int idPuntoControl = sharedPreferences.getInt("ID_PUNTO_CONTROL_SELECTED", 0);
-        if(dni.length() == 0){
+        if (dni.length() == 0) {
             Swal.warning(ctx, "Alerta!", "Debe digitar un DNI");
-        }else if(binding.inputTipoMarcacion.getText().toString().length() == 0){
+        } else if (binding.inputTipoMarcacion.getText().toString().length() == 0) {
             Swal.warning(ctx, "Alerta!", "Debes seleccionar un tipo de marcación antes de realizar una marcación.");
             MediaPlayer mediaPlayer;
             mediaPlayer = MediaPlayer.create(ctx, R.raw.alerta_tipo_marcacion);
             mediaPlayer.start();
-        }else if (idPuntoControl == 0) {
-            Swal.warning(ctx, "Advertencia!","NO SE PUEDEN REALIZAR MARCAS POR QUE NO SE HA CONFIGURADO EL PUNTO DE CONTROL, COMUNIQUESE CON EL ÁREA DE SISTEMAS");
-        }else {
+        } else if (idPuntoControl == 0) {
+            Swal.warning(ctx, "Advertencia!", "NO SE PUEDEN REALIZAR MARCAS POR QUE NO SE HA CONFIGURADO EL PUNTO DE CONTROL, COMUNIQUESE CON EL ÁREA DE SISTEMAS");
+        } else {
             String dniMarcado = dni;
             String dniEditText = dni;
             //RETIRAMOS EL SJ DE LA CADENA DE TEXTO A ANALIZAR
 //                        OBTENEMOS EL REGISTRO DE LA PERSONA
             boolean permitirEncriptado = sharedPreferences.getBoolean("PERMITIR_ENCRIPTADO", false);
             int longitudPermitida = sharedPreferences.getInt("LONGITUD_DNI", 8);
-            if(!!permitirEncriptado){
-                if(dniMarcado.length() == longitudPermitida){
+            if (permitirEncriptado) {
+                if (dniMarcado.length() == longitudPermitida) {
                     try {
                         dniMarcado = CryptorSJ.desencriptarCadena(dniMarcado);
                     } catch (Exception e) {
-                        Swal.error(ctx, "Error!", "Error al obtener codigo:" + e.toString(), 1500);
+                        Swal.error(ctx, "Error!", "Error al obtener codigo:" + e, 1500);
                     }
                 }
             }
@@ -549,7 +518,7 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
 
             List<Personas> personasEncontradas = personasDAO.buscarPersona(dniBusqueda);
 //                        VALIDAMOS PERMISOS DE LA MARCA A REALIZAR
-            switch (validarPermisoMarca(dniMarcado.toString(), dniEditText.toString(), personasEncontradas)) {
+            switch (validarPermisoMarca(dniMarcado, dniEditText, personasEncontradas)) {
                 case 0:
                     Swal.error(ctx, "No permitido", "No está permitido este tipo de marcación");
                     binding.inputDNI.setText("");
@@ -582,10 +551,10 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
                     registrarMarca(dniMarcado, personasEncontradas);
                     break;
                 case 4:
-                    Swal.error(ctx, "Oops!","DEBE INGRESAR UN DNI");
+                    Swal.error(ctx, "Oops!", "DEBE INGRESAR UN DNI");
                     break;
                 case 5:
-                    Swal.error(ctx, "Oops!","FALTAN CARACTERES");
+                    Swal.error(ctx, "Oops!", "FALTAN CARACTERES");
                     break;
                 case 6:
                     Swal.error(ctx, "No permitido", "No está permitida la marcación con prefijo");
@@ -608,15 +577,16 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         }
         tipoMarcacion = "T";
     }
+
     private void registrarMarca(String dniMarcado, List<Personas> personasEncontradas) {
 
-        String dniBuscar = dniMarcado.substring(0,2).equals("SJ") ? dniMarcado.substring(2) : dniMarcado;
+        String dniBuscar = dniMarcado.startsWith("SJ") ? dniMarcado.substring(2) : dniMarcado;
         int accion = obtenerAccion(binding.inputTipoMarcacion.getText().toString());
 
         boolean marcaExiste = marcasDAO.verificarExistenciaMarca(dniBuscar, obtenerFecha(), accion);
         boolean verificarExistenciaMarca = sharedPreferences.getBoolean("VERIFICAR_EXISTENCIA_MARCA", false);
 
-        if(marcaExiste && verificarExistenciaMarca){
+        if (marcaExiste && verificarExistenciaMarca) {
 //            MediaPlayer mediaPlayer;
 //            mediaPlayer = MediaPlayer.create(ctx, R.raw.a_la_papa);
             binding.textNombres.setText("");
@@ -624,22 +594,22 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
             binding.tvError.setText("YA HAY UN REGISTRO PARA ESTE TRABAJADOR CON ESTA ACCIÓN.");
             binding.tvError.setTextColor(getResources().getColor(R.color.warning));
 //            mediaPlayer.start();
-        }else{
+        } else {
             int idPuntoControl = sharedPreferences.getInt("ID_PUNTO_CONTROL_SELECTED", 0);
             MediaPlayer mp = obtenerSonido();
             String nombre = personasEncontradas.size() > 0 ? personasEncontradas.get(0).getNombres() : "DESCONOCIDO";
-            String apellido = personasEncontradas.size() > 0 ? personasEncontradas.get(0).getPaterno() + " "+ personasEncontradas.get(0).getMaterno() : "DESCONOCIDO";
+            String apellido = personasEncontradas.size() > 0 ? personasEncontradas.get(0).getPaterno() + " " + personasEncontradas.get(0).getMaterno() : "DESCONOCIDO";
             binding.textNombres.setText(nombre);
             binding.textApellidos.setText(apellido);
 
             String tipoMarca = obtenerTipoMarca();
             Marcas nuevaMarca = new Marcas();
-            nuevaMarca.setIdMarcacion(sharedPreferences.getInt("DEVICE_ID", 0) + obtenerFechaHoraParaId());
+            nuevaMarca.setIdMarcacion(sharedPreferences.getInt("ID_TERMINAL", 0) + obtenerFechaHoraParaId());
             nuevaMarca.setDni(dniBuscar);
             nuevaMarca.setFecha(obtenerFecha());
             nuevaMarca.setHora(obtenerFechaHora());
             nuevaMarca.setAccion(accion);
-            nuevaMarca.setIdDispositivo(String.valueOf(sharedPreferences.getInt("DEVICE_ID", 0)));
+            nuevaMarca.setIdDispositivo(String.valueOf(sharedPreferences.getInt("ID_TERMINAL", 0)));
             nuevaMarca.setProcesada(0);
             nuevaMarca.setIdPuntoControl(String.valueOf(idPuntoControl));
             nuevaMarca.setFechaEnvio(obtenerFechaHora());
@@ -653,7 +623,7 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
 
     private int obtenerAccion(String accionText) {
         int accion = 0;
-        switch(accionText){
+        switch (accionText) {
             case "INGRESO":
                 return 1;
             case "REFRIGERIO":
@@ -679,7 +649,7 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
 //        7 marcó DNI o tiene fotocheck antiguo
 //        8 error al obtener código
 
-        if(dniMarcado.equals("error_al_obtener_codigo")) {
+        if (dniMarcado.equals("error_al_obtener_codigo")) {
             return 8;
         }
 
@@ -697,13 +667,13 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         int trabajadorStatus = 0;
 
 //        Toast.makeText(ctx, dniMarcado, Toast.LENGTH_SHORT).show();
-        if(dniMarcado.length() < 8){
+        if (dniMarcado.length() < 8) {
             return 5;
         }
-        if(dniMarcado.equals("")){
+        if (dniMarcado.equals("")) {
             return 4;
         }
-        if(dniMarcado.substring(0,2).equals("SJ")){
+        if (dniMarcado.startsWith("SJ")) {
             return 6;
         }
 //        Toast.makeText(ctx, dniEditText + " / " + longitudDNI + " / " + String.valueOf(dniEditText.length() == 10 && longitudDNI == 10 && !!permitirEncriptado && !permitirSinPrefijo), Toast.LENGTH_LONG).show();
@@ -711,24 +681,24 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         String observacion = persona.size() > 0 ? persona.get(0).getObservacion() : "PERSONAL NUEVO";
         Log.i("OBS", observacion);
 
-        if(dniEditText.length() == 10 && longitudDNI == 10 && !!permitirEncriptado && !permitirSinPrefijo){
+        if (dniEditText.length() == 10 && longitudDNI == 10 && permitirEncriptado && !permitirSinPrefijo) {
             trabajadorStatus = 0;
-        }else if(permitirInactivos && !permitirObservados){
-            if(observacion.equals("HABILITADO")){
+        } else if (permitirInactivos && !permitirObservados) {
+            if (observacion.equals("HABILITADO")) {
                 trabajadorStatus = 1;
             } else if (observacion.equals("PERSONAL NUEVO")) {
                 trabajadorStatus = 3;
             }
-        } else if(!permitirInactivos && permitirObservados && !observacion.equals("PERSONAL NUEVO")){
-            if(observacion.equals("HABILITADO")){
+        } else if (!permitirInactivos && permitirObservados && !observacion.equals("PERSONAL NUEVO")) {
+            if (observacion.equals("HABILITADO")) {
                 trabajadorStatus = 1;
             } else if (!observacion.equals("HABILITADO")) {
                 trabajadorStatus = 2;
             }
         } else if (!permitirInactivos && observacion.equals("HABILITADO") && persona.size() > 0) {
             trabajadorStatus = 1;
-        } else if (permitirInactivos && permitirObservados){
-            if(observacion.equals("HABILITADO")){
+        } else if (permitirInactivos && permitirObservados) {
+            if (observacion.equals("HABILITADO")) {
                 trabajadorStatus = 1;
             } else if (observacion.equals("PERSONAL NUEVO")) {
                 trabajadorStatus = 3;
@@ -737,62 +707,62 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
             }
         }
 
-        switch (trabajadorStatus){
-            case 0 :
-                if(!!permitirEncriptado && !permitirSinPrefijo && !permitirPrefijo && dniEditText.length() == 10 && longitudDNI == 10){
+        switch (trabajadorStatus) {
+            case 0:
+                if (permitirEncriptado && !permitirSinPrefijo && !permitirPrefijo && dniEditText.length() == 10 && longitudDNI == 10) {
                     return 1;
-                }else {
+                } else {
                     return 7;
                 }
-            case 1 :
-                if(permitirPrefijo && permitirSinPrefijo){
-                    if(dniMarcado.length() > 8 && dniMarcado.substring(0,2).equals("SJ")){
+            case 1:
+                if (permitirPrefijo && permitirSinPrefijo) {
+                    if (dniMarcado.length() > 8 && dniMarcado.startsWith("SJ")) {
                         return 1;
-                    }else if(dniMarcado.length() == 8) {
+                    } else if (dniMarcado.length() == 8) {
                         return 1;
                     }
                     return 0;
-                }else if(dniMarcado.length() > 8 && !dniMarcado.substring(0,2).equals("SJ")){
+                } else if (dniMarcado.length() > 8 && !dniMarcado.startsWith("SJ")) {
                     return 0;
                 } else if (!permitirPrefijo && permitirSinPrefijo && dniMarcado.length() == 8) {
                     return 1;
-                } else if (permitirPrefijo && !permitirSinPrefijo && dniMarcado.substring(0,2).equals("SJ")) {
+                } else if (permitirPrefijo && !permitirSinPrefijo && dniMarcado.startsWith("SJ")) {
                     return 1;
-                } else  {
+                } else {
                     return 0;
                 }
             case 2:
-                if(permitirPrefijo && permitirSinPrefijo){
-                    if(dniMarcado.length() > 8 && dniMarcado.substring(0,2).equals("SJ")){
+                if (permitirPrefijo && permitirSinPrefijo) {
+                    if (dniMarcado.length() > 8 && dniMarcado.startsWith("SJ")) {
                         return 2;
-                    }else if(dniMarcado.length() == 8) {
+                    } else if (dniMarcado.length() == 8) {
                         return 2;
                     }
                     return 0;
-                }else if(dniMarcado.length() > 8 && !dniMarcado.substring(0,2).equals("SJ")){
+                } else if (dniMarcado.length() > 8 && !dniMarcado.startsWith("SJ")) {
                     return 0;
                 } else if (!permitirPrefijo && permitirSinPrefijo && dniMarcado.length() == 8) {
                     return 2;
-                } else if (permitirPrefijo && !permitirSinPrefijo && dniMarcado.substring(0,2).equals("SJ")) {
+                } else if (permitirPrefijo && !permitirSinPrefijo && dniMarcado.startsWith("SJ")) {
                     return 2;
-                } else  {
+                } else {
                     return 0;
                 }
             case 3:
-                if(permitirPrefijo && permitirSinPrefijo){
-                    if(dniMarcado.length() > 8 && dniMarcado.substring(0,2).equals("SJ")){
+                if (permitirPrefijo && permitirSinPrefijo) {
+                    if (dniMarcado.length() > 8 && dniMarcado.startsWith("SJ")) {
                         return 3;
-                    }else if(dniMarcado.length() == 8) {
+                    } else if (dniMarcado.length() == 8) {
                         return 3;
                     }
                     return 0;
-                }else if(dniMarcado.length() > 8 && !dniMarcado.substring(0,2).equals("SJ")){
+                } else if (dniMarcado.length() > 8 && !dniMarcado.startsWith("SJ")) {
                     return 0;
                 } else if (!permitirPrefijo && permitirSinPrefijo && dniMarcado.length() == 8) {
                     return 3;
-                } else if (permitirPrefijo && !permitirSinPrefijo && dniMarcado.substring(0,2).equals("SJ")) {
+                } else if (permitirPrefijo && !permitirSinPrefijo && dniMarcado.startsWith("SJ")) {
                     return 3;
-                } else  {
+                } else {
                     return 0;
                 }
         }
@@ -802,13 +772,13 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
     private MediaPlayer obtenerSonido() {
 
         MediaPlayer mediaPlayer;
-        if(sharedPreferences.getBoolean("VOZ_INFORMACION", false) == false){
+        if (!sharedPreferences.getBoolean("VOZ_INFORMACION", false)) {
             mediaPlayer = MediaPlayer.create(ctx, R.raw.coin);
             return mediaPlayer;
         }
 
-        if(sharedPreferences.getBoolean("MODO_AMIGABLE", false) == true){
-            switch (binding.inputTipoMarcacion.getText().toString()){
+        if (sharedPreferences.getBoolean("MODO_AMIGABLE", false)) {
+            switch (binding.inputTipoMarcacion.getText().toString()) {
                 case "SALIDA AYER":
                     mediaPlayer = MediaPlayer.create(ctx, R.raw.que_descanses);
                     break;
@@ -828,8 +798,8 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
                     mediaPlayer = MediaPlayer.create(ctx, R.raw.coin);
                     break;
             }
-        }else {
-            switch (binding.inputTipoMarcacion.getText().toString()){
+        } else {
+            switch (binding.inputTipoMarcacion.getText().toString()) {
                 case "SALIDA AYER":
                     mediaPlayer = MediaPlayer.create(ctx, R.raw.salida);
                     break;
@@ -855,10 +825,10 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
     }
 
     private String obtenerTipoMarca() {
-        String tipoMarca="";
-        if(binding.checkBoxCena.isChecked()){
+        String tipoMarca = "";
+        if (binding.checkBoxCena.isChecked()) {
             tipoMarca = "C";
-        }else {
+        } else {
             tipoMarca = tipoMarcacion;
         }
         return tipoMarca;
@@ -872,7 +842,7 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
     private void insertarLog(String accion, String horaInicio, String condicion, JSONArray logParams) {
 
         int idPuerta = sharedPreferences.getInt("ID_PUNTO_CONTROL_SELECTED", 0);
-        int idDevice = sharedPreferences.getInt("DEVICE_ID", 0);
+        int idDevice = sharedPreferences.getInt("ID_TERMINAL", 0);
         String fechaActual = obtenerFechaHora();
         //            INSERTAMOS UN LOG
         Logs logsInsert = new Logs();
@@ -887,18 +857,18 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         logsInsert.setParametros(logParams == null ? "" : logParams.toString());
         logsDAO.insertarLog(logsInsert);
 
-        transferirLogs();
+//        transferirLogs();
     }
 
-    private String obtenerDiferenciaEntreHoras(String horaInicio, String horaFin){
+    private String obtenerDiferenciaEntreHoras(String horaInicio, String horaFin) {
         String diferencia = "";
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        try{
+        try {
             Date horaFInicio = sdf.parse(horaInicio);
             Date horaFFin = sdf.parse(horaFin);
             long diferenciaSeconds = horaFFin.getTime() - horaFInicio.getTime();
             diferencia = String.valueOf(diferenciaSeconds);
-        }catch (ParseException e){
+        } catch (ParseException e) {
             Log.e("PARSE ERROR", e.toString());
             e.printStackTrace();
         }
@@ -921,13 +891,13 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
     }
 
     private void mostrarLoaders(boolean b) {
-        if(b == true){
+        if (b) {
             binding.textLastDownload.setVisibility(View.INVISIBLE);
             binding.imageSync.setVisibility(View.VISIBLE);
             binding.progressSync.setVisibility(View.VISIBLE);
-        }else{
+        } else {
 
-            String ultimaDescarga = logsDAO.obtenerMaximoLog("descargar");
+            String ultimaDescarga = logsDAO.obtenerMaximoLog("descargar personas");
             binding.textLastDownload.setText(ultimaDescarga);
             binding.textLastDownload.setVisibility(View.VISIBLE);
             binding.imageSync.setVisibility(View.INVISIBLE);
@@ -938,20 +908,28 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
 
     private void obtenerPersonas() {
         try {
+            horaInicio = obtenerFechaHora();
+            mostrarLoaders(true);
+            dl.closeDrawer(GravityCompat.START);
 //            OBTENEMOS LAS PERSONAS DEL SERVIDOR
             SQLConnection sqlConnection = new SQLConnection();
             sqlConnection.obtenerPersonas(ctx, this);
-        }catch (Exception e){
+            if(sharedPreferences.getBoolean("SINCRONIZACION_AUTOMATICA", false)){
+                scheduleHourlyAlarm();
+            }
+            binding.textLastDownload.setText(ultimaDescarga);
+        } catch (Exception e) {
+            Swal.error(ctx, "Oops!", "No se ha podido descargar la información de las personas");
         }
     }
 
     private boolean eliminarPersonas() {
         try {
-    //        ELIMINAMOS LOS REGISTROS DE PERSONAS PARA POBLARLOS CON LO NUEVO
+            //        ELIMINAMOS LOS REGISTROS DE PERSONAS PARA POBLARLOS CON LO NUEVO
             List<Personas> personas = personasDAO.obtenerPersonas();
             personasDAO.eliminarPersonas(personas);
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             Swal.error(ctx, "Oops!", "Ha ocurrido un error al eliminar las personas, no se puede continuar con la sincronización.");
             return false;
         }
@@ -975,17 +953,16 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
     }
 
 
-
-//    USAMOS UN FOR EN EL EVENTO ONVIEWCREATED PARA OBTENER EL VALOR DE CADA BOTÓN Y EVITAR HACER METODOS COMPLEJOS BOTÓN POR BOTÓN
+    //    USAMOS UN FOR EN EL EVENTO ONVIEWCREATED PARA OBTENER EL VALOR DE CADA BOTÓN Y EVITAR HACER METODOS COMPLEJOS BOTÓN POR BOTÓN
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstance){
-        for(int i = 0; i <= 9; i++){
-            int buttonId = getResources().getIdentifier("button_"+i, "id",requireContext().getPackageName());
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstance) {
+        for (int i = 0; i <= 9; i++) {
+            int buttonId = getResources().getIdentifier("button_" + i, "id", requireContext().getPackageName());
             Button button = view.findViewById(buttonId);
             button.setOnClickListener(view1 -> {
-                if(sharedPreferences.getBoolean("TECLADO_ACTIVADO", false) == false){
+                if (!sharedPreferences.getBoolean("TECLADO_ACTIVADO", false)) {
                     alertaTecladoInhabilitado();
-                }else {
+                } else {
                     tipoMarcacion = "T";
                     agregarNumero(view1);
                 }
@@ -994,8 +971,8 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
     }
 
     private void alertaTecladoInhabilitado() {
-        for(int i = 0; i <= 9; i++){
-            int buttonId = getResources().getIdentifier("button_"+i, "id",requireContext().getPackageName());
+        for (int i = 0; i <= 9; i++) {
+            int buttonId = getResources().getIdentifier("button_" + i, "id", requireContext().getPackageName());
             Button button = getView().findViewById(buttonId);
             button.setBackgroundColor(getResources().getColor(R.color.keyboard_inactive));
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -1012,35 +989,28 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         binding.inputDNI.setText(textoAntiguo + textoNuevo);
     }
 
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            // Actualiza el contenido del TextView aquí
-            actualizarReloj();
-
-            // Repite la tarea cada segundo
-            handler.postDelayed(this, 1000);
-        }
-    };
-
-//    METODOS PARA RELOJ
-    private String obtenerHora(){
+    //    METODOS PARA RELOJ
+    private String obtenerHora() {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         String currentTime = sdf.format(calendar.getTime());
         return currentTime;
     }
+
     private void actualizarReloj() {
         binding.textClock.setText(obtenerHora());
+        actualizarFecha();
     }
+
     private void iniciarThreadReloj() {
         runnable.run();
     }
+
     private void detenerThreadReloj() {
         handler.removeCallbacks(runnable);
     }
 
-//    METODOS PARA FECHA
+    //    METODOS PARA FECHA
     private String obtenerFechaTexto() {
         // Obtiene la fecha actual
         Calendar calendar = Calendar.getInstance();
@@ -1060,7 +1030,7 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         return currentDate;
     }
 
-    private void actualizarFecha(){
+    private void actualizarFecha() {
         binding.textDate.setText(obtenerFechaTexto());
     }
 
@@ -1071,6 +1041,7 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         sharedPreferences = ctx.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -1096,37 +1067,39 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         jsonArray = result.getJSONObject(0).getJSONArray("response");
 //        for( runner ; condicion de ejecucion ; hace mientras no se cumpla la condicion)
 
-        for(int i = 0 ; i < jsonArray.length() ; i++ ){
+        int cantidadPersonas = jsonArray.length();
+        for (int i = 0; i < cantidadPersonas; i++) {
 //            CAPTURAMOS DNI Y ESTADO DE LA PERSONA PARA LOS LOGS
             JSONObject jsonPersonasParams = new JSONObject();
             Personas persona = new Personas();
-                persona.setDni(jsonArray.getJSONObject(i).getString("Dni"));
-                persona.setNombres(jsonArray.getJSONObject(i).getString("Nombres"));
-                persona.setPaterno(jsonArray.getJSONObject(i).getString("Paterno"));
-                persona.setMaterno(jsonArray.getJSONObject(i).getString("Materno"));
-                persona.setPlanilla(jsonArray.getJSONObject(i).getString("IDPLANILLA"));
-                persona.setObservacion(jsonArray.getJSONObject(i).getString("OBSERVACION"));
-                personasDAO.insertarPersonas(persona);
+            persona.setDni(jsonArray.getJSONObject(i).getString("Dni"));
+            persona.setNombres(jsonArray.getJSONObject(i).getString("Nombres"));
+            persona.setPaterno(jsonArray.getJSONObject(i).getString("Paterno"));
+            persona.setMaterno(jsonArray.getJSONObject(i).getString("Materno"));
+            persona.setPlanilla(jsonArray.getJSONObject(i).getString("IDPLANILLA"));
+            persona.setObservacion(jsonArray.getJSONObject(i).getString("OBSERVACION"));
+            personasDAO.insertarPersonas(persona);
 
 //                AGREGAMOS LOS ELEMENTOS AL OBJETO DE LOGS SOLO LOS QUE ESTÁN CON OBSERVACIÓN
-                if(!jsonArray.getJSONObject(i).getString("OBSERVACION").equals("HABILITADO")){
-                    jsonPersonasParams.put("Dni", jsonArray.getJSONObject(i).getString("Dni"));
+            if (!jsonArray.getJSONObject(i).getString("OBSERVACION").equals("HABILITADO")) {
+                jsonPersonasParams.put("Dni", jsonArray.getJSONObject(i).getString("Dni"));
 //                AGREGAMOS EL OBJETO AL ARRAY
-                    logParams.put(jsonPersonasParams);
-                }
+                logParams.put(jsonPersonasParams);
+            }
         }
 
-        Log.i("AEA", String.valueOf(logParams.toString().length()));
-
-        if(jsonArray.length() == personasDAO.obtenerCantidadPersonas()){
+        if (jsonArray.length() == personasDAO.obtenerCantidadPersonas()) {
             Swal.success(ctx, "CORRECTO!", "Se han insertado todos los registros obtenidos!", 5000);
             mostrarLoaders(false);
             insertarLog("descargar personas", obtenerFechaHora(), "exito", logParams);
+            guardarLog("descargar");
         } else if (personasDAO.obtenerCantidadPersonas() == 0) {
             Swal.error(ctx, "Oops!", "NO SE HAN INSERTADO REGISTROS, VUELVA A INTENTAR!");
             insertarLog("descargar personas", obtenerFechaHora(), "error", logParams);
+            String ultimaDescarga = logsDAO.obtenerMaximoLog("descargar personas");
+
         } else {
-            Swal.warning(ctx, "AVISO!", "Se han insertado:"+personasDAO.obtenerCantidadPersonas()+ " registros de: "+jsonArray.length()+".");
+            Swal.warning(ctx, "AVISO!", "Se han insertado:" + personasDAO.obtenerCantidadPersonas() + " registros de: " + jsonArray.length() + ".");
             insertarLog("descargar personas", obtenerFechaHora(), "faltantes", logParams);
         }
     }
@@ -1141,20 +1114,21 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
     }
 
     @Override
-    public void transferenciaCorrecta(JSONArray result) throws JSONException {
+    public void transferenciaCorrecta(JSONArray result) {
         marcasDAO.procesarMarcas();
         Swal.success(ctx, "Perfecto!", "Las marcas se han procesado correctamente", 5000);
         insertarLog("transferir marcas", obtenerFechaHora(), "exito", new JSONArray());
-        String ultimaTransferencia = logsDAO.obtenerMaximoLog("transferir");
+        String ultimaTransferencia = logsDAO.obtenerMaximoLog("transferir marcas");
         binding.textlastTransfer.setText(ultimaTransferencia);
         obtenerMarcasSinProcesar();
+        guardarLog("transferir");
     }
 
     private void transferirLogs() {
         List<Logs> logsObtenidos = logsDAO.obtenerLogsSinProcesar();
         JSONArray logs = new JSONArray();
 
-        for(Logs log: logsObtenidos){
+        for (Logs log : logsObtenidos) {
             JSONObject elemento = new JSONObject();
             try {
                 elemento.put("accion", log.getAccion());
@@ -1162,14 +1136,59 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
                 elemento.put("usuario", log.getUsuario());
                 elemento.put("puerta", log.getPuerta());
                 elemento.put("dispositivo", log.getDispositivo());
+                elemento.put("mac", MacAddressHelper.getMacAddress(ctx));
                 elemento.put("demora", log.getDemora());
                 elemento.put("condicion", log.getCondicion());
 
             } catch (JSONException e) {
-                throw new RuntimeException(e);
+                Swal.error(ctx ,"Oops!", "Hubo un error al transformar los logs para enviarlos.", 3000);
             }
             logs.put(elemento);
         }
+
+        JSONObject params = new JSONObject();
+        try {
+            params.put("logs", logs);
+            SQLLogs sqlLogs = new SQLLogs();
+            sqlLogs.transferirLogs(ctx, this, params);
+        } catch (JSONException e) {
+            Log.e("RESPONSE", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void guardarLog(String accion) {
+
+        String descripcion = "";
+        String parametros = "";
+        switch (accion){
+            case "transferir":
+                descripcion = "sp_CnsMobile_insertar_marcas";
+                parametros = "";
+                break;
+            case "descargar":
+                descripcion = "sp_Cns_DescargarPersonas";
+                parametros = "@IncluyeObservacion[1]";
+                break;
+            default:
+                descripcion = "Sin Stored Procedure";
+                parametros = "";
+        }
+
+        JSONArray logs = new JSONArray();
+
+        JSONObject elemento = new JSONObject();
+            try {
+                elemento.put("accion", descripcion);
+                elemento.put("aplicativo", "ChronosMobile");
+                elemento.put("usuario", "Automatico");
+                elemento.put("parametros", parametros);
+                elemento.put("mac", MacAddressHelper.getMacAddress(ctx));
+            } catch (JSONException e) {
+                Swal.error(ctx ,"Oops!", "Hubo un error al transformar los logs para enviarlos.", 3000);
+            }
+
+        logs.put(elemento);
 
         JSONObject params = new JSONObject();
         try {
@@ -1205,9 +1224,9 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
             public void run() {
                 while (ejecutarPing) {
                     try {
-                        if(binding != null){
+                        if (binding != null) {
                             InetAddress address = InetAddress.getByName("192.168.30.99");
-                            boolean isReachable = address.isReachable(3000);  // Timeout de 3 segundos
+                            isReachable = address.isReachable(3000);  // Timeout de 3 segundos
 
                             // Envía el resultado al handler en el hilo principal
                             Message message = new Message();
@@ -1216,13 +1235,13 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
                             bundle.putBoolean("isReachable", isReachable);
                             message.setData(bundle);
                             handlerConnection.sendMessage(message);
-                            if(isReachable == true){
-                                Drawable drawable = ContextCompat.getDrawable(ctx,R.drawable.ic_wifi);
+                            if (isReachable) {
+                                Drawable drawable = ContextCompat.getDrawable(ctx, R.drawable.ic_wifi);
                                 drawable = DrawableCompat.wrap(drawable).mutate();
                                 DrawableCompat.setTint(drawable, getResources().getColor(R.color.success));
                                 binding.imageConnection.setImageDrawable(drawable);
-                            }else{
-                                Drawable drawable = ContextCompat.getDrawable(ctx,R.drawable.ic_no_wifi);
+                            } else {
+                                Drawable drawable = ContextCompat.getDrawable(ctx, R.drawable.ic_no_wifi);
                                 drawable = DrawableCompat.wrap(drawable).mutate();
                                 DrawableCompat.setTint(drawable, getResources().getColor(R.color.error));
                                 binding.imageConnection.setImageDrawable(drawable);
@@ -1248,5 +1267,58 @@ private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
     public void transferenciaLogCorrecta(JSONArray response) throws JSONException {
         Log.i("RESPONSE LOGS", response.toString());
         logsDAO.procesarLogs();
+    }
+
+    private void scheduleHourlyAlarm() {
+        AlarmSetup.scheduleHourlyAlarm(ctx, () -> {
+            if(isReachable){
+                transferirMarcas();
+                obtenerPersonas();
+            }
+        });
+    }
+
+    private class BarcodeAnalyzerHome implements ImageAnalysis.Analyzer {
+        private final BarcodeScanner scanner;
+
+        BarcodeAnalyzerHome() {
+            BarcodeScannerOptions options = new BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_CODE_128).build();
+            scanner = BarcodeScanning.getClient(options);
+        }
+
+        @Override
+        public void analyze(@NonNull ImageProxy imageProxy) {
+            @SuppressLint("UnsafeOptInUsageError") InputImage image = InputImage.fromMediaImage(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
+
+            scanner.process(image).addOnSuccessListener(barcodes -> {
+                for (Barcode barcode : barcodes) {
+                    String rawValue = barcode.getRawValue();
+                    // Manejar el resultado aquí
+                    if (rawValue != null) {
+                        scannerViewModel.setScannedCode(rawValue);
+                        imageAnalysis.clearAnalyzer();
+                        Log.d("BarcodeAnalyzer", "Código escaneado: " + rawValue);
+                        // Introduce una pausa de 2 segundos antes de continuar
+                        CountDownTimer countDownTimer = new CountDownTimer(2500, 2500) {
+                            @Override
+                            public void onTick(long l) {
+
+                            }
+
+                            @Override
+                            public void onFinish() {
+                                if (binding.layoutFinderScanner != null) {
+                                    imageAnalysis.setAnalyzer(cameraExecutor, new BarcodeAnalyzerHome());
+                                }
+                                this.cancel();
+                            }
+                        };
+
+                        countDownTimer.start();
+                    }
+                }
+                imageProxy.close();
+            }).addOnFailureListener(e -> imageProxy.close());
+        }
     }
 }

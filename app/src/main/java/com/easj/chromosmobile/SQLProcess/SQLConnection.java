@@ -45,7 +45,7 @@ public class SQLConnection {
                 },
                 error -> {
                     callback.onError(error);
-                    Log.i("RESPONSE", error.getMessage());
+                    Log.i("RESPONSE", error.toString());
                 }
         );
 
@@ -53,7 +53,6 @@ public class SQLConnection {
     }
 
     public void transferirMarcas(Context ctx, VolleyCallback callback, JSONObject params){
-        Log.i("ENTRO","PADENTRO");
 //        CREAMOS EL REQUEST
         RequestQueue requestQueue = Volley.newRequestQueue(ctx);
 //        DEFINIMOS EL ENDPOINT

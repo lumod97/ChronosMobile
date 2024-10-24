@@ -199,6 +199,9 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
         binding.switchModoPacking.setOnCheckedChangeListener((compoundButton, b) -> {
             editor.putBoolean("MODO_PACKING", b).apply();
         });
+        binding.switchSincronizacionAutomatica.setOnCheckedChangeListener((compoundButton, b) -> {
+            editor.putBoolean("SINCRONIZACION_AUTOMATICA", b).apply();
+        });
         binding.inputLongitudDNI.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
@@ -228,6 +231,7 @@ public class SettingsFragment extends Fragment implements SQLConnection.VolleyCa
         binding.inputLongitudDNI.setText(String.valueOf(sharedPreferences.getInt("LONGITUD_DNI", 8)));
         binding.switchMostrarScanner.setChecked(sharedPreferences.getBoolean("MOSTRAR_SCANNER", false));
         binding.switchAlternarCamara.setChecked(sharedPreferences.getBoolean("USAR_CAMARA_FRONTAL", false));
+        binding.switchSincronizacionAutomatica.setChecked(sharedPreferences.getBoolean("SINCRONIZACION_AUTOMATICA", false));
     }
 
     private void registrarDispositivo() throws JSONException {
